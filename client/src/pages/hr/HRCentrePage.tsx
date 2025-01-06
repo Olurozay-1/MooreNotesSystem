@@ -18,13 +18,20 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "@/hooks/use-user";
 
 export default function HRCentrePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useUser();
 
   const { data: activities, isLoading } = useQuery({
     queryKey: ['/api/hr-activities'],
+  });
+
+  const { data: users } = useQuery({
+    queryKey: ['/api/users'],
+    enabled: user?.role === 'manager'
   });
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -61,12 +68,14 @@ export default function HRCentrePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">HR Centre</h1>
-        <Button 
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-[#1a73e8] hover:bg-[#1557b0]"
-        >
-          New HR Activity
-        </Button>
+        {user?.role === 'manager' && (
+          <Button 
+            onClick={() => setIsCreateOpen(true)}
+            className="bg-[#1a73e8] hover:bg-[#1557b0]"
+          >
+            New HR Activity
+          </Button>
+        )}
       </div>
 
       <Card>
@@ -79,8 +88,8 @@ export default function HRCentrePage() {
               <thead>
                 <tr>
                   <th className="text-left py-3 px-4">Type</th>
-                  <th className="text-left py-3 px-4">Title</th>
                   <th className="text-left py-3 px-4">Employee</th>
+                  <th className="text-left py-3 px-4">Outcome</th>
                   <th className="text-left py-3 px-4">Status</th>
                   <th className="text-left py-3 px-4">Scheduled Date</th>
                   <th className="text-left py-3 px-4">Actions</th>
@@ -103,8 +112,8 @@ export default function HRCentrePage() {
                   activities?.map((activity: any) => (
                     <tr key={activity.id} className="border-t">
                       <td className="py-3 px-4">{activity.type}</td>
-                      <td className="py-3 px-4">{activity.title}</td>
-                      <td className="py-3 px-4">{activity.employee}</td>
+                      <td className="py-3 px-4">{activity.employee?.username}</td>
+                      <td className="py-3 px-4">{activity.outcome}</td>
                       <td className="py-3 px-4">{activity.status}</td>
                       <td className="py-3 px-4">
                         {new Date(activity.scheduledDate).toLocaleDateString()}
@@ -144,14 +153,17 @@ export default function HRCentrePage() {
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">John Doe</SelectItem>
-                <SelectItem value="2">Jane Smith</SelectItem>
+                {users?.map((user: any) => (
+                  <SelectItem key={user.id} value={user.id.toString()}>
+                    {user.username}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
             <Input 
-              name="title"
-              placeholder="Title"
+              name="outcome"
+              placeholder="Outcome"
               required 
             />
 

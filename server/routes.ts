@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
-import { documents, tasks, youngPeople, hrActivities } from "@db/schema";
+import { documents, tasks, youngPeople, hrActivities, users } from "@db/schema";
 import { eq } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
@@ -45,7 +45,7 @@ export function registerRoutes(app: Express): Server {
           title,
           type,
           path: file.path,
-          uploadedBy: req.user.id
+          uploadedBy: req.user?.id
         })
         .returning();
 
@@ -87,6 +87,20 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Users API
+  app.get("/api/users", requireManager, async (req, res) => {
+    try {
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        role: users.role
+      }).from(users);
+      res.json(allUsers);
+    } catch (error) {
+      res.status(500).send("Error fetching users");
+    }
+  });
+
   // Young People API
   app.post("/api/young-people", requireAuth, async (req, res) => {
     try {
@@ -109,13 +123,13 @@ export function registerRoutes(app: Express): Server {
   });
 
   // HR Activities API
-  app.post("/api/hr-activities", requireAuth, upload.single("document"), async (req, res) => {
+  app.post("/api/hr-activities", requireManager, upload.single("document"), async (req, res) => {
     try {
       const file = req.file;
       const data = {
         ...req.body,
         documentPath: file?.path,
-        createdBy: req.user.id,
+        createdBy: req.user?.id,
       };
 
       const [activity] = await db.insert(hrActivities)
@@ -134,15 +148,16 @@ export function registerRoutes(app: Express): Server {
         .select({
           id: hrActivities.id,
           type: hrActivities.type,
-          title: hrActivities.title,
+          outcome: hrActivities.title,
           description: hrActivities.description,
-          employeeId: hrActivities.employeeId,
+          employee: users,
           status: hrActivities.status,
           scheduledDate: hrActivities.scheduledDate,
           documentPath: hrActivities.documentPath,
           createdAt: hrActivities.createdAt,
         })
         .from(hrActivities)
+        .leftJoin(users, eq(hrActivities.employeeId, users.id))
         .orderBy(hrActivities.createdAt);
 
       res.json(activities);
