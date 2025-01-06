@@ -26,10 +26,17 @@ export default function YoungPeoplePage() {
 
   const onSubmit = async (data: any) => {
     try {
+      // Format dates before submission
+      const formattedData = {
+        ...data,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString() : null,
+        dateAdmitted: data.dateAdmitted ? new Date(data.dateAdmitted).toISOString() : null
+      };
+
       const response = await fetch('/api/young-people', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formattedData),
         credentials: 'include'
       });
 

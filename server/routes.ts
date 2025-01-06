@@ -122,9 +122,26 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).send("User not authenticated");
       }
 
+      const {
+        name,
+        dateOfBirth,
+        dateAdmitted,
+        gender,
+        localAuthority,
+        allergies,
+        conditions,
+        notes
+      } = req.body;
+
       const [person] = await db.insert(youngPeople)
         .values({
-          ...req.body,
+          name,
+          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+          dateAdmitted: dateAdmitted ? new Date(dateAdmitted) : null,
+          gender,
+          localAuthority,
+          allergies,
+          notes,
           createdBy: req.user.id,
           createdAt: new Date()
         })
