@@ -16,7 +16,6 @@ export default function YoungPeoplePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
-  const [, navigate] = useLocation();
   const isManager = user?.role?.toLowerCase() === "manager";
 
   const { data: youngPeople, isLoading } = useQuery({
@@ -36,6 +35,7 @@ export default function YoungPeoplePage() {
 
   const onSubmit = async (data: any) => {
     try {
+      // Format dates before submission
       const formattedData = {
         ...data,
         dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString() : null,
@@ -109,18 +109,24 @@ export default function YoungPeoplePage() {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={() => navigate(`/young-people/${person.id}/folder`)}>
-                    <Folder className="h-4 w-4" />
-                    YP Folder
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={() => navigate(`/young-people/shift-logs`)}>
-                    <ClipboardList className="h-4 w-4" />
-                    Shift Logs
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={() => navigate(`/young-people/${person.id}/profile`)}>
-                    <User2 className="h-4 w-4" />
-                    Profile
-                  </Button>
+                  <Link href={`/young-people/${person.id}/folder`}>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <Folder className="h-4 w-4" />
+                      YP Folder
+                    </Button>
+                  </Link>
+                  <Link href="/young-people/shift-logs">
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <ClipboardList className="h-4 w-4" />
+                      Shift Logs
+                    </Button>
+                  </Link>
+                  <Link href={`/young-people/${person.id}/profile`}>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <User2 className="h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>
@@ -163,6 +169,11 @@ export default function YoungPeoplePage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Allergies</label>
                 <Input {...form.register('allergies')} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Conditions</label>
+                <Input {...form.register('conditions')} />
               </div>
 
               <div className="space-y-2">

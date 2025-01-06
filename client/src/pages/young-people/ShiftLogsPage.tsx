@@ -26,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import type { ShiftLog } from "@db/schema";
 
 const shiftLogFormSchema = z.object({
   shiftDate: z.string().nonempty("Date & time is required"),
@@ -45,7 +44,7 @@ type ShiftLogFormValues = z.infer<typeof shiftLogFormSchema>;
 export default function ShiftLogsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
+  
   const form = useForm<ShiftLogFormValues>({
     resolver: zodResolver(shiftLogFormSchema),
     defaultValues: {
@@ -55,7 +54,7 @@ export default function ShiftLogsPage() {
     },
   });
 
-  const { data: recentLogs = [], isLoading: isLoadingLogs } = useQuery<ShiftLog[]>({
+  const { data: recentLogs, isLoading: isLoadingLogs } = useQuery({
     queryKey: ["/api/shift-logs"],
   });
 
@@ -219,11 +218,11 @@ export default function ShiftLogsPage() {
         <CardContent>
           {isLoadingLogs ? (
             <p>Loading recent logs...</p>
-          ) : recentLogs.length === 0 ? (
+          ) : recentLogs?.length === 0 ? (
             <p>No logs found</p>
           ) : (
             <div className="space-y-4">
-              {recentLogs.map((log: ShiftLog) => (
+              {recentLogs?.map((log: any) => (
                 <Card key={log.id}>
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start mb-2">
