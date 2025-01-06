@@ -4,6 +4,11 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import AuthPage from "./pages/AuthPage";
 import { PageWrapper } from "./components/layout/PageWrapper";
 import { useUser } from "./hooks/use-user";
+import DashboardPage from "./pages/DashboardPage";
+import SmockWalkPage from "./pages/SmockWalkPage";
+import YoungPeoplePage from "./pages/YoungPeoplePage";
+import HRPage from "./pages/HRPage";
+import BusinessVaultPage from "./pages/BusinessVaultPage";
 
 function App() {
   const { user, isLoading } = useUser();
@@ -24,48 +29,13 @@ function App() {
     <PageWrapper>
       <Switch>
         <Route path="/" component={DashboardPage} />
+        <Route path="/smock-walk" component={SmockWalkPage} />
         <Route path="/young-people" component={YoungPeoplePage} />
         <Route path="/hr" component={HRPage} />
         <Route path="/business-vault" component={BusinessVaultPage} />
         <Route component={NotFound} />
       </Switch>
     </PageWrapper>
-  );
-}
-
-function DashboardPage() {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      {/* Dashboard content */}
-    </div>
-  );
-}
-
-function YoungPeoplePage() {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Young People</h1>
-      {/* Young People content */}
-    </div>
-  );
-}
-
-function HRPage() {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">HR</h1>
-      {/* HR content */}
-    </div>
-  );
-}
-
-function BusinessVaultPage() {
-  return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Business Vault</h1>
-      {/* Business Vault content */}
-    </div>
   );
 }
 

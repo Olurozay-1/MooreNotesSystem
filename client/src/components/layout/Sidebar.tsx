@@ -6,7 +6,8 @@ import {
   Users,
   FileBox,
   Briefcase,
-  LogOut
+  LogOut,
+  Home
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 
@@ -39,6 +40,15 @@ export function Sidebar({ className }: SidebarProps) {
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
+            </Button>
+          </Link>
+          <Link href="/smock-walk">
+            <Button
+              variant={location === "/smock-walk" ? "secondary" : "ghost"}
+              className="w-full justify-start text-white hover:text-black"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Smock Walk
             </Button>
           </Link>
           <Link href="/young-people">
