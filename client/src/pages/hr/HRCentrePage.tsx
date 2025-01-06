@@ -31,7 +31,7 @@ export default function HRCentrePage() {
 
   const { data: users } = useQuery({
     queryKey: ['/api/users'],
-    enabled: user?.role === 'manager'
+    enabled: user && user.role === 'manager'
   });
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -68,7 +68,7 @@ export default function HRCentrePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">HR Centre</h1>
-        {user?.role === 'manager' && (
+        {user && user.role === 'manager' && (
           <Button 
             onClick={() => setIsCreateOpen(true)}
             className="bg-[#1a73e8] hover:bg-[#1557b0]"
@@ -148,7 +148,7 @@ export default function HRCentrePage() {
               </SelectContent>
             </Select>
 
-            <Select name="employee" required>
+            <Select name="employeeId" required>
               <SelectTrigger>
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
