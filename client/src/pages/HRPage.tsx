@@ -51,15 +51,15 @@ export default function HRPage() {
           </Card>
         </Link>
 
-        <Link href="/hr/documents">
+        <Link href="/hr/support">
           <Card className="cursor-pointer hover:bg-accent transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-2">
-                <FileBox className="h-5 w-5" />
-                <h2 className="text-xl font-semibold">Documents</h2>
+                <HelpCircle className="h-5 w-5" />
+                <h2 className="text-xl font-semibold">Help & Support</h2>
               </div>
               <p className="text-muted-foreground">
-                Access and manage important HR documents, forms, and files.
+                Find resources, FAQs, and contact information for HR-related inquiries and support.
               </p>
             </CardContent>
           </Card>
