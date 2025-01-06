@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Loader2 } from "lucide-react";
 import AuthPage from "./pages/AuthPage";
@@ -27,17 +28,19 @@ function App() {
 
   return (
     <PageWrapper>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <Switch>
         <Route path="/" component={DashboardPage} />
         <Route path="/smock-walk" component={SmockWalkPage} />
         <Route path="/young-people" component={YoungPeoplePage} />
         <Route path="/hr" component={HRPage} />
-        <Route path="/hr/centre" component={() => import('./pages/hr/HRCentrePage').then(m => m.default)} />
-        <Route path="/hr/timesheets" component={() => import('./pages/hr/TimesheetsPage').then(m => m.default)} />
-        <Route path="/hr/policies" component={() => import('./pages/hr/PoliciesPage').then(m => m.default)} />
+        <Route path="/hr/centre" component={lazy(() => import('./pages/hr/HRCentrePage'))} />
+        <Route path="/hr/timesheets" component={lazy(() => import('./pages/hr/TimesheetsPage'))} />
+        <Route path="/hr/policies" component={lazy(() => import('./pages/hr/PoliciesPage'))} />
         <Route path="/business-vault" component={BusinessVaultPage} />
         <Route component={NotFound} />
       </Switch>
+      </Suspense>
     </PageWrapper>
   );
 }
