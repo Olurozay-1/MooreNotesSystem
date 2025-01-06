@@ -40,10 +40,15 @@ export default function HRCentrePage() {
     const formData = new FormData(event.currentTarget);
 
     try {
+      const formDataObj = Object.fromEntries(formData);
       const response = await fetch('/api/hr-activities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(formData)),
+        body: JSON.stringify({
+          ...formDataObj,
+          title: formDataObj.outcome, // Use outcome as title since it's required
+          status: 'pending'
+        }),
         credentials: 'include'
       });
 
