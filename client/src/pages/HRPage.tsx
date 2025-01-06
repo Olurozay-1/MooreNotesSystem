@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Briefcase, Clock, Book, HelpCircle } from "lucide-react";
+import { Briefcase, Clock, Book, FileBox } from "lucide-react";
 import { Link } from "wouter";
 
 export default function HRPage() {
@@ -51,15 +51,15 @@ export default function HRPage() {
           </Card>
         </Link>
 
-        <Link href="/hr/support">
+        <Link href="/hr/documents">
           <Card className="cursor-pointer hover:bg-accent transition-colors">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2 mb-2">
-                <HelpCircle className="h-5 w-5" />
-                <h2 className="text-xl font-semibold">Help & Support</h2>
+                <FileBox className="h-5 w-5" />
+                <h2 className="text-xl font-semibold">Documents</h2>
               </div>
               <p className="text-muted-foreground">
-                Find resources, FAQs, and contact information for HR-related inquiries and support.
+                Access and manage important HR documents, forms, and files.
               </p>
             </CardContent>
           </Card>
