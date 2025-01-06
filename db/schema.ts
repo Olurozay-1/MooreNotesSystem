@@ -58,7 +58,6 @@ export const timesheets = pgTable("timesheets", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -89,9 +88,74 @@ export const youngPeople = pgTable("young_people", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   dateOfBirth: timestamp("date_of_birth"),
+  gender: text("gender"),
+  dateAdmitted: timestamp("date_admitted"),
+  careStatus: text("care_status"),
+  socialWorker: text("social_worker"),
+  localAuthority: text("local_authority"),
+  allergies: text("allergies"),
+  dietaryRequirements: text("dietary_requirements"),
   notes: jsonb("notes"),
   createdAt: timestamp("created_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
 });
+
+export const ypFolderDocuments = pgTable("yp_folder_documents", {
+  id: serial("id").primaryKey(),
+  youngPersonId: integer("young_person_id").notNull().references(() => youngPeople.id),
+  title: text("title").notNull(),
+  category: text("category", {
+    enum: ["medical", "education", "legal", "care_plan", "risk_assessment", "other"]
+  }).notNull(),
+  path: text("path").notNull(),
+  uploadedBy: integer("uploaded_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const shiftLogs = pgTable("shift_logs", {
+  id: serial("id").primaryKey(),
+  youngPersonId: integer("young_person_id").notNull().references(() => youngPeople.id),
+  carerId: integer("carer_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  mood: text("mood"),
+  activities: text("activities"),
+  incidents: text("incidents"),
+  medications: text("medications"),
+  shiftDate: timestamp("shift_date").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const youngPeopleRelations = relations(youngPeople, ({ many, one }) => ({
+  documents: many(ypFolderDocuments),
+  shiftLogs: many(shiftLogs),
+  creator: one(users, {
+    fields: [youngPeople.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const ypFolderDocumentsRelations = relations(ypFolderDocuments, ({ one }) => ({
+  youngPerson: one(youngPeople, {
+    fields: [ypFolderDocuments.youngPersonId],
+    references: [youngPeople.id],
+  }),
+  uploader: one(users, {
+    fields: [ypFolderDocuments.uploadedBy],
+    references: [users.id],
+  }),
+}));
+
+export const shiftLogsRelations = relations(shiftLogs, ({ one }) => ({
+  youngPerson: one(youngPeople, {
+    fields: [shiftLogs.youngPersonId],
+    references: [youngPeople.id],
+  }),
+  carer: one(users, {
+    fields: [shiftLogs.carerId],
+    references: [users.id],
+  }),
+}));
 
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
@@ -107,3 +171,18 @@ export const insertTimesheetSchema = createInsertSchema(timesheets);
 export const selectTimesheetSchema = createSelectSchema(timesheets);
 export type Timesheet = typeof timesheets.$inferSelect;
 export type NewTimesheet = typeof timesheets.$inferInsert;
+
+export const insertYoungPersonSchema = createInsertSchema(youngPeople);
+export const selectYoungPersonSchema = createSelectSchema(youngPeople);
+export type YoungPerson = typeof youngPeople.$inferSelect;
+export type NewYoungPerson = typeof youngPeople.$inferInsert;
+
+export const insertShiftLogSchema = createInsertSchema(shiftLogs);
+export const selectShiftLogSchema = createSelectSchema(shiftLogs);
+export type ShiftLog = typeof shiftLogs.$inferSelect;
+export type NewShiftLog = typeof shiftLogs.$inferInsert;
+
+export const insertYPFolderDocumentSchema = createInsertSchema(ypFolderDocuments);
+export const selectYPFolderDocumentSchema = createSelectSchema(ypFolderDocuments);
+export type YPFolderDocument = typeof ypFolderDocuments.$inferSelect;
+export type NewYPFolderDocument = typeof ypFolderDocuments.$inferInsert;

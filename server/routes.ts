@@ -2,7 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
-import { documents, tasks, youngPeople, hrActivities, users, timesheets } from "@db/schema";
+import { 
+  documents, tasks, youngPeople, hrActivities, users, timesheets, 
+  ypFolderDocuments, shiftLogs 
+} from "@db/schema";
 import { eq, desc } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
@@ -113,14 +116,24 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Young People API
-  app.post("/api/young-people", requireAuth, async (req, res) => {
+  app.post("/api/young-people", requireManager, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).send("User not authenticated");
+      }
+
       const [person] = await db.insert(youngPeople)
-        .values(req.body)
+        .values({
+          ...req.body,
+          createdBy: req.user.id,
+          createdAt: new Date()
+        })
         .returning();
+
       res.json(person);
-    } catch (error) {
-      res.status(500).send("Error creating record");
+    } catch (error: any) {
+      console.error('Error creating young person:', error);
+      res.status(500).send(`Error creating record: ${error.message}`);
     }
   });
 
@@ -128,8 +141,120 @@ export function registerRoutes(app: Express): Server {
     try {
       const people = await db.select().from(youngPeople);
       res.json(people);
-    } catch (error) {
-      res.status(500).send("Error fetching records");
+    } catch (error: any) {
+      console.error('Error fetching young people:', error);
+      res.status(500).send(`Error fetching records: ${error.message}`);
+    }
+  });
+
+  app.get("/api/young-people/:id", requireAuth, async (req, res) => {
+    try {
+      const [person] = await db
+        .select()
+        .from(youngPeople)
+        .where(eq(youngPeople.id, parseInt(req.params.id)))
+        .limit(1);
+
+      if (!person) {
+        return res.status(404).send("Young person not found");
+      }
+
+      res.json(person);
+    } catch (error: any) {
+      console.error('Error fetching young person:', error);
+      res.status(500).send(`Error fetching record: ${error.message}`);
+    }
+  });
+
+  // YP Folder Documents API
+  app.post("/api/yp-folder/:id/documents", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      if (!req.user || !req.file) {
+        return res.status(400).send("Missing required data");
+      }
+
+      const { title, category } = req.body;
+      const youngPersonId = parseInt(req.params.id);
+
+      const [doc] = await db.insert(ypFolderDocuments)
+        .values({
+          youngPersonId,
+          title,
+          category,
+          path: req.file.path,
+          uploadedBy: req.user.id,
+          createdAt: new Date()
+        })
+        .returning();
+
+      res.json(doc);
+    } catch (error: any) {
+      console.error('Error uploading document:', error);
+      res.status(500).send(`Error uploading document: ${error.message}`);
+    }
+  });
+
+  app.get("/api/yp-folder/:id/documents", requireAuth, async (req, res) => {
+    try {
+      const docs = await db
+        .select()
+        .from(ypFolderDocuments)
+        .where(eq(ypFolderDocuments.youngPersonId, parseInt(req.params.id)));
+
+      res.json(docs);
+    } catch (error: any) {
+      console.error('Error fetching documents:', error);
+      res.status(500).send(`Error fetching documents: ${error.message}`);
+    }
+  });
+
+  // Shift Logs API
+  app.post("/api/shift-logs/:id", requireAuth, async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).send("User not authenticated");
+      }
+
+      const youngPersonId = parseInt(req.params.id);
+      const [log] = await db.insert(shiftLogs)
+        .values({
+          ...req.body,
+          youngPersonId,
+          carerId: req.user.id,
+          createdAt: new Date()
+        })
+        .returning();
+
+      res.json(log);
+    } catch (error: any) {
+      console.error('Error creating shift log:', error);
+      res.status(500).send(`Error creating shift log: ${error.message}`);
+    }
+  });
+
+  app.get("/api/shift-logs/:id", requireAuth, async (req, res) => {
+    try {
+      const logs = await db
+        .select({
+          id: shiftLogs.id,
+          content: shiftLogs.content,
+          mood: shiftLogs.mood,
+          activities: shiftLogs.activities,
+          incidents: shiftLogs.incidents,
+          medications: shiftLogs.medications,
+          shiftDate: shiftLogs.shiftDate,
+          createdAt: shiftLogs.createdAt,
+          carer: users
+        })
+        .from(shiftLogs)
+        .leftJoin(users, eq(shiftLogs.carerId, users.id))
+        .where(eq(shiftLogs.youngPersonId, parseInt(req.params.id)))
+        .orderBy(desc(shiftLogs.createdAt));
+
+      res.json(logs);
+    } catch (error: any) {
+      console.error('Error fetching shift logs:', error);
+      res.status(500).send(`Error fetching shift logs: ${error.message}`);
     }
   });
 
