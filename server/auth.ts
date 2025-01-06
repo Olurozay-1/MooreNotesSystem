@@ -5,31 +5,26 @@ import session from "express-session";
 import createMemoryStore from "memorystore";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { users, insertUserSchema, type User } from "@db/schema";
+import { users, type User } from "@db/schema";
 import { db } from "@db";
 import { eq } from "drizzle-orm";
 
 const scryptAsync = promisify(scrypt);
-const KEY_LENGTH = 64;
-
 const crypto = {
   hash: async (password: string) => {
     const salt = randomBytes(16).toString("hex");
-    const buf = (await scryptAsync(password, salt, KEY_LENGTH)) as Buffer;
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
     return `${buf.toString("hex")}.${salt}`;
   },
   compare: async (suppliedPassword: string, storedPassword: string) => {
     const [hashedPassword, salt] = storedPassword.split(".");
-    if (!hashedPassword || !salt) return false;
-
-    const hashBuffer = Buffer.from(hashedPassword, "hex");
-    const suppliedBuffer = (await scryptAsync(
+    const hashedPasswordBuf = Buffer.from(hashedPassword, "hex");
+    const suppliedPasswordBuf = (await scryptAsync(
       suppliedPassword,
       salt,
-      KEY_LENGTH
+      64
     )) as Buffer;
-
-    return timingSafeEqual(hashBuffer, suppliedBuffer);
+    return timingSafeEqual(hashedPasswordBuf, suppliedPasswordBuf);
   },
 };
 
@@ -47,7 +42,7 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     cookie: {},
     store: new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
+      checkPeriod: 86400000,
     }),
   };
 
@@ -74,15 +69,12 @@ export function setupAuth(app: Express) {
         if (!user) {
           return done(null, false, { message: "Incorrect username." });
         }
-
         const isMatch = await crypto.compare(password, user.password);
         if (!isMatch) {
           return done(null, false, { message: "Incorrect password." });
         }
-
         return done(null, user);
       } catch (err) {
-        console.error('Authentication error:', err);
         return done(err);
       }
     })
@@ -108,11 +100,7 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, password, role } = req.body;
-
-      if (!username || !password) {
-        return res.status(400).send("Username and password are required");
-      }
-
+      
       const [existingUser] = await db
         .select()
         .from(users)
@@ -130,7 +118,7 @@ export function setupAuth(app: Express) {
         .values({
           username,
           password: hashedPassword,
-          role: role || "carer",
+          role: role || "carer"
         })
         .returning();
 
@@ -144,15 +132,13 @@ export function setupAuth(app: Express) {
         });
       });
     } catch (error) {
-      console.error('Registration error:', error);
       next(error);
     }
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err: any, user: Express.User | false, info: IVerifyOptions) => {
+    const cb = (err: any, user: Express.User, info: IVerifyOptions) => {
       if (err) {
-        console.error('Login error:', err);
         return next(err);
       }
 
@@ -162,7 +148,6 @@ export function setupAuth(app: Express) {
 
       req.logIn(user, (err) => {
         if (err) {
-          console.error('Login session error:', err);
           return next(err);
         }
 
@@ -171,13 +156,13 @@ export function setupAuth(app: Express) {
           user: { id: user.id, username: user.username, role: user.role }
         });
       });
-    })(req, res, next);
+    };
+    passport.authenticate("local", cb)(req, res, next);
   });
 
   app.post("/api/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
-        console.error('Logout error:', err);
         return res.status(500).send("Logout failed");
       }
       res.json({ message: "Logout successful" });

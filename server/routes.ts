@@ -122,30 +122,14 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).send("User not authenticated");
       }
 
-      const data = {
-        ...req.body,
-        dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null,
-        dateAdmitted: req.body.dateAdmitted ? new Date(req.body.dateAdmitted) : null,
-        notes: req.body.notes ? { content: req.body.notes } : null,
-        createdBy: req.user.id,
-        createdAt: new Date()
-      };
-
-      // Validate required fields
-      if (!data.name) {
-        return res.status(400).send("Name is required");
-      }
-
-      console.log('Attempting to create young person with data:', {
-        ...data,
-        notes: data.notes ? '[REDACTED]' : null
-      });
-
       const [person] = await db.insert(youngPeople)
-        .values(data)
+        .values({
+          ...req.body,
+          createdBy: req.user.id,
+          createdAt: new Date()
+        })
         .returning();
 
-      console.log('Successfully created young person:', person.id);
       res.json(person);
     } catch (error: any) {
       console.error('Error creating young person:', error);

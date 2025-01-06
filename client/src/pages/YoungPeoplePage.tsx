@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -108,7 +107,7 @@ export default function YoungPeoplePage() {
       </div>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add New Resident</DialogTitle>
           </DialogHeader>
@@ -135,6 +134,16 @@ export default function YoungPeoplePage() {
               </div>
 
               <div className="space-y-2">
+                <label className="text-sm font-medium">Care Status</label>
+                <Input {...form.register('careStatus')} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Social Worker</label>
+                <Input {...form.register('socialWorker')} />
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-sm font-medium">Local Authority</label>
                 <Input {...form.register('localAuthority')} />
               </div>
@@ -145,12 +154,12 @@ export default function YoungPeoplePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Conditions</label>
-                <Input {...form.register('conditions')} />
+                <label className="text-sm font-medium">Dietary Requirements</label>
+                <Input {...form.register('dietaryRequirements')} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Additional Notes (e.g. Dietary Requirements)</label>
+                <label className="text-sm font-medium">Additional Notes</label>
                 <Textarea {...form.register('notes')} />
               </div>
 
