@@ -10,11 +10,35 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const timesheets = pgTable("timesheets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  shiftDate: timestamp("shift_date").notNull(),
+  timeIn: timestamp("time_in").notNull(),
+  timeOut: timestamp("time_out").notNull(),
+  isSleepIn: boolean("is_sleep_in").default(false),
+  notes: text("notes"),
+  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  timesheets: many(timesheets),
+}));
+
+export const timesheetsRelations = relations(timesheets, ({ one }) => ({
+  user: one(users, {
+    fields: [timesheets.userId],
+    references: [users.id],
+  }),
+}));
+
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  type: text("type", { 
-    enum: ["young_people", "hr", "business"] 
+  type: text("type", {
+    enum: ["young_people", "hr", "business"]
   }).notNull(),
   path: text("path").notNull(),
   uploadedBy: integer("uploaded_by").references(() => users.id),
@@ -42,22 +66,10 @@ export const youngPeople = pgTable("young_people", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const timesheets = pgTable("timesheets", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  shiftDate: timestamp("shift_date").notNull(),
-  timeIn: timestamp("time_in").notNull(),
-  timeOut: timestamp("time_out").notNull(),
-  isSleepIn: boolean("is_sleep_in").default(false),
-  notes: text("notes"),
-  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
 export const hrActivities = pgTable("hr_activities", {
   id: serial("id").primaryKey(),
-  type: text("type", { 
-    enum: ["probation_review", "disciplinary", "supervision", "meeting"] 
+  type: text("type", {
+    enum: ["probation_review", "disciplinary", "supervision", "meeting"]
   }).notNull(),
   title: text("title").notNull(),
   description: text("description"),

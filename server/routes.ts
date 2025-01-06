@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
-import { documents, tasks, youngPeople, hrActivities, users } from "@db/schema";
+import { documents, tasks, youngPeople, hrActivities, users, timesheets } from "@db/schema";
 import { eq, desc } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
@@ -11,12 +11,23 @@ const upload = pkg({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
+// Extend Express.User with our User type
+declare global {
+  namespace Express {
+    interface User {
+      id: number;
+      username: string;
+      role: string;
+    }
+  }
+}
+
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
 
   // Middleware to check if user is authenticated
   const requireAuth = (req: any, res: any, next: any) => {
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated() && req.user) {
       return next();
     }
     res.status(401).send("Unauthorized");
@@ -24,7 +35,7 @@ export function registerRoutes(app: Express): Server {
 
   // Middleware to check if user is a manager
   const requireManager = (req: any, res: any, next: any) => {
-    if (req.isAuthenticated() && req.user.role === "manager") {
+    if (req.isAuthenticated() && req.user && req.user.role?.toLowerCase() === "manager") {
       return next();
     }
     res.status(403).send("Forbidden");
@@ -125,27 +136,46 @@ export function registerRoutes(app: Express): Server {
   // Timesheets API
   app.post("/api/timesheets", requireAuth, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).send("User not authenticated");
+      }
+
+      const { shiftDate, timeIn, timeOut, isSleepIn, notes } = req.body;
+
       const [timesheet] = await db.insert(timesheets)
         .values({
-          ...req.body,
-          userId: req.user?.id,
+          userId: req.user.id,
+          shiftDate: new Date(shiftDate),
+          timeIn: new Date(timeIn),
+          timeOut: new Date(timeOut),
+          isSleepIn: isSleepIn || false,
+          notes,
+          status: "pending"
         })
         .returning();
+
       res.json(timesheet);
-    } catch (error) {
-      res.status(500).send("Error creating timesheet");
+    } catch (error: any) {
+      console.error('Timesheet creation error:', error);
+      res.status(500).send(`Error creating timesheet: ${error.message}`);
     }
   });
 
   app.get("/api/timesheets", requireAuth, async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).send("User not authenticated");
+      }
+
       const userTimesheets = await db.select()
         .from(timesheets)
-        .where(eq(timesheets.userId, req.user?.id))
+        .where(eq(timesheets.userId, req.user.id))
         .orderBy(desc(timesheets.createdAt));
+
       res.json(userTimesheets);
-    } catch (error) {
-      res.status(500).send("Error fetching timesheets");
+    } catch (error: any) {
+      console.error('Timesheet fetch error:', error);
+      res.status(500).send(`Error fetching timesheets: ${error.message}`);
     }
   });
 
