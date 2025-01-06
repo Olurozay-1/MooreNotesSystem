@@ -38,6 +38,7 @@ function App() {
         <Route path="/hr/timesheets" component={lazy(() => import('./pages/hr/TimesheetsPage'))} />
         <Route path="/hr/policies" component={lazy(() => import('./pages/hr/PoliciesPage'))} />
         <Route path="/business-vault" component={BusinessVaultPage} />
+        <Route path="/help-support" component={lazy(() => import('./pages/HelpSupportPage'))} />
         <Route component={NotFound} />
       </Switch>
       </Suspense>
