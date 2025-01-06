@@ -226,18 +226,18 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Shift Logs API
-  app.post("/api/shift-logs/:id", requireAuth, async (req, res) => {
+  app.post("/api/shift-logs", requireAuth, async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).send("User not authenticated");
       }
 
-      const youngPersonId = parseInt(req.params.id);
       const [log] = await db.insert(shiftLogs)
         .values({
           ...req.body,
-          youngPersonId,
+          youngPersonId: 1, // TODO: Replace with actual young person ID from frontend
           carerId: req.user.id,
+          shiftDate: new Date(req.body.shiftDate),
           createdAt: new Date()
         })
         .returning();
@@ -249,24 +249,21 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/shift-logs/:id", requireAuth, async (req, res) => {
+  app.get("/api/shift-logs", requireAuth, async (req, res) => {
     try {
       const logs = await db
         .select({
           id: shiftLogs.id,
           content: shiftLogs.content,
-          mood: shiftLogs.mood,
-          activities: shiftLogs.activities,
-          incidents: shiftLogs.incidents,
-          medications: shiftLogs.medications,
+          logType: shiftLogs.logType,
+          shiftType: shiftLogs.shiftType,
+          concerns: shiftLogs.concerns,
           shiftDate: shiftLogs.shiftDate,
           createdAt: shiftLogs.createdAt,
-          carer: users
         })
         .from(shiftLogs)
-        .leftJoin(users, eq(shiftLogs.carerId, users.id))
-        .where(eq(shiftLogs.youngPersonId, parseInt(req.params.id)))
-        .orderBy(desc(shiftLogs.createdAt));
+        .orderBy(desc(shiftLogs.createdAt))
+        .limit(10);
 
       res.json(logs);
     } catch (error: any) {
