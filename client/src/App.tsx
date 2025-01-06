@@ -32,6 +32,9 @@ function App() {
         <Route path="/smock-walk" component={SmockWalkPage} />
         <Route path="/young-people" component={YoungPeoplePage} />
         <Route path="/hr" component={HRPage} />
+        <Route path="/hr/centre" component={() => import('./pages/hr/HRCentrePage').then(m => m.default)} />
+        <Route path="/hr/timesheets" component={() => import('./pages/hr/TimesheetsPage').then(m => m.default)} />
+        <Route path="/hr/policies" component={() => import('./pages/hr/PoliciesPage').then(m => m.default)} />
         <Route path="/business-vault" component={BusinessVaultPage} />
         <Route component={NotFound} />
       </Switch>
