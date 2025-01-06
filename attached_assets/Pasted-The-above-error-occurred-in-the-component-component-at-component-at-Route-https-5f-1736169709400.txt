@@ -1,0 +1,30 @@
+The above error occurred in the <component> component:
+
+    at component
+    at Route (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/wouter.js?v=1b93584d:323:16)
+    at Switch (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/wouter.js?v=1b93584d:379:17)
+    at main
+    at div
+    at PageWrapper (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/src/components/layout/PageWrapper.tsx:18:31)
+    at App (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/src/App.tsx:31:31)
+    at QueryClientProvider (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/@tanstack_react-query.js?v=1b93584d:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at component
+at Route (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/wouter.js?v=1b93584d:323:16)
+at Switch (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/wouter.js?v=1b93584d:379:17)
+at main
+at div
+at PageWrapper (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/src/components/layout/PageWrapper.tsx:18:31)
+at App (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/src/App.tsx:31:31)
+at QueryClientProvider (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/@fs/home/runner/MooreNotesSystem/node_modules/.vite/deps/@tanstack_react-query.js?v=1b93584d:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://5f853e3f-de8b-4a44-acaf-3f56a07d08d8-00-3bc53xmj6m4vn.kirk.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Objects are not valid as a React child (found: [object Promise]). If you meant to render a collection of children, use an array instead
