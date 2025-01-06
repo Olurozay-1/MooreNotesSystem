@@ -20,6 +20,15 @@ export default function YoungPeoplePage() {
 
   const { data: youngPeople, isLoading } = useQuery({
     queryKey: ['/api/young-people'],
+    queryFn: async () => {
+      const response = await fetch('/api/young-people', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch residents');
+      }
+      return response.json();
+    }
   });
 
   const form = useForm();
@@ -76,7 +85,9 @@ export default function YoungPeoplePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          <p>Loading residents...</p>
+          <div className="col-span-3">Loading residents...</div>
+        ) : !youngPeople?.length ? (
+          <div className="col-span-3">No residents found</div>
         ) : youngPeople?.map((person: any) => (
           <Card key={person.id} className="hover:bg-accent transition-colors">
             <CardHeader>
@@ -84,10 +95,20 @@ export default function YoungPeoplePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600">
-                  DOB: {new Date(person.dateOfBirth).toLocaleDateString()}
-                </p>
-                <div className="flex gap-2">
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    DOB: {new Date(person.dateOfBirth).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Age: {Math.floor((new Date().getTime() - new Date(person.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))}
+                  </p>
+                  {person.localAuthority && (
+                    <p className="text-sm text-gray-600">
+                      LA: {person.localAuthority}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
                   <Link href={`/young-people/${person.id}/folder`}>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                       <Folder className="h-4 w-4" />
