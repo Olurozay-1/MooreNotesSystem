@@ -116,12 +116,13 @@ export const shiftLogs = pgTable("shift_logs", {
   id: serial("id").primaryKey(),
   youngPersonId: integer("young_person_id").notNull().references(() => youngPeople.id),
   carerId: integer("carer_id").notNull().references(() => users.id),
-  content: text("content").notNull(),
-  mood: text("mood"),
-  activities: text("activities"),
-  incidents: text("incidents"),
-  medications: text("medications"),
-  shiftDate: timestamp("shift_date").notNull(),
+  datetime: timestamp("datetime").notNull(),
+  shift: text("shift", { enum: ["morning", "afternoon", "night"] }).notNull(),
+  logType: text("log_type", { 
+    enum: ["daily", "grumbles", "takeaway", "missing", "found"] 
+  }).notNull(),
+  description: text("description").notNull(),
+  concerns: text("concerns"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
