@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
-import { Clock } from "lucide-react";
+import { Clock, Moon } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
@@ -165,6 +165,43 @@ export default function TimesheetsPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+    <div className="mt-6">
+        <h2 className="text-2xl font-bold mb-4">Statistics</h2>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Hours</p>
+                  <p className="text-2xl font-bold">
+                    {timesheets?.reduce((total, t) => {
+                      const start = new Date(t.timeIn);
+                      const end = new Date(t.timeOut);
+                      const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                      return total + hours;
+                    }, 0).toFixed(1)}h
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Moon className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Sleep-ins</p>
+                  <p className="text-2xl font-bold">
+                    {timesheets?.filter(t => t.isSleepIn).length || 0}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
