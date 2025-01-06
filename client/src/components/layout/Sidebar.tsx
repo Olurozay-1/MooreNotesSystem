@@ -71,15 +71,6 @@ export function Sidebar({ className }: SidebarProps) {
               HR
             </Button>
           </Link>
-          <Link href="/documents">
-            <Button
-              variant={location === "/documents" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:text-[#d557ff]"
-            >
-              <FileBox className="mr-2 h-4 w-4" />
-              Documents
-            </Button>
-          </Link>
           {isManager && (
             <Link href="/business-vault">
               <Button
@@ -91,15 +82,6 @@ export function Sidebar({ className }: SidebarProps) {
               </Button>
             </Link>
           )}
-          <Link href="/help-support">
-            <Button
-              variant={location === "/help-support" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:text-[#d557ff]"
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Help & Support
-            </Button>
-          </Link>
         </div>
       </div>
       <div className="fixed bottom-4 w-[calc(100%-24px)] mx-3">
