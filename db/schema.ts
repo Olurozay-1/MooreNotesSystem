@@ -10,6 +10,42 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const hrActivities = pgTable("hr_activities", {
+  id: serial("id").primaryKey(),
+  type: text("type", {
+    enum: ["probation_review", "disciplinary", "supervision", "meeting"]
+  }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  employeeId: integer("employee_id").notNull().references(() => users.id),
+  status: text("status", {
+    enum: ["pending", "completed", "cancelled"]
+  }).notNull().default("pending"),
+  scheduledDate: timestamp("scheduled_date"),
+  documentPath: text("document_path"),
+  createdBy: integer("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  hrActivitiesAsEmployee: many(hrActivities, { relationName: "employeeActivities" }),
+  hrActivitiesAsCreator: many(hrActivities, { relationName: "createdActivities" }),
+}));
+
+export const hrActivitiesRelations = relations(hrActivities, ({ one }) => ({
+  employee: one(users, {
+    fields: [hrActivities.employeeId],
+    references: [users.id],
+    relationName: "employeeActivities",
+  }),
+  creator: one(users, {
+    fields: [hrActivities.createdBy],
+    references: [users.id],
+    relationName: "createdActivities",
+  }),
+}));
+
 export const timesheets = pgTable("timesheets", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
@@ -22,17 +58,6 @@ export const timesheets = pgTable("timesheets", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  timesheets: many(timesheets),
-}));
-
-export const timesheetsRelations = relations(timesheets, ({ one }) => ({
-  user: one(users, {
-    fields: [timesheets.userId],
-    references: [users.id],
-  }),
-}));
 
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
@@ -63,23 +88,6 @@ export const youngPeople = pgTable("young_people", {
   name: text("name").notNull(),
   dateOfBirth: timestamp("date_of_birth"),
   notes: jsonb("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const hrActivities = pgTable("hr_activities", {
-  id: serial("id").primaryKey(),
-  type: text("type", {
-    enum: ["probation_review", "disciplinary", "supervision", "meeting"]
-  }).notNull(),
-  title: text("title").notNull(),
-  description: text("description"),
-  employeeId: integer("employee_id").references(() => users.id),
-  status: text("status", {
-    enum: ["pending", "completed", "cancelled"]
-  }).notNull().default("pending"),
-  scheduledDate: timestamp("scheduled_date"),
-  documentPath: text("document_path"),
-  createdBy: integer("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -182,11 +182,37 @@ export function registerRoutes(app: Express): Server {
   // HR Activities API
   app.post("/api/hr-activities", requireManager, upload.single("document"), async (req, res) => {
     try {
-      const file = req.file;
+      if (!req.user) {
+        return res.status(401).send("User not authenticated");
+      }
+
+      const { type, employeeId, description, scheduledDate } = req.body;
+      const outcome = req.body.outcome || req.body.title; // Support both outcome and title fields
+
+      if (!type || !employeeId || !outcome || !scheduledDate) {
+        return res.status(400).send("Missing required fields");
+      }
+
+      // Validate employee exists
+      const [employee] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, parseInt(employeeId)))
+        .limit(1);
+
+      if (!employee) {
+        return res.status(400).send("Invalid employee ID");
+      }
+
       const data = {
-        ...req.body,
-        documentPath: file?.path,
-        createdBy: req.user?.id,
+        type,
+        title: outcome,
+        description,
+        employeeId: parseInt(employeeId),
+        scheduledDate: new Date(scheduledDate),
+        documentPath: req.file?.path,
+        createdBy: req.user.id,
+        status: "pending"
       };
 
       const [activity] = await db.insert(hrActivities)
@@ -194,8 +220,9 @@ export function registerRoutes(app: Express): Server {
         .returning();
 
       res.json(activity);
-    } catch (error) {
-      res.status(500).send("Error creating HR activity");
+    } catch (error: any) {
+      console.error('HR activity creation error:', error);
+      res.status(500).send(`Error creating HR activity: ${error.message}`);
     }
   });
 

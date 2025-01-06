@@ -17,13 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/hooks/use-user";
 
 export default function HRCentrePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
+  const queryClient = useQueryClient();
   const isManager = user?.role?.toLowerCase() === "manager";
 
   const { data: activities, isLoading } = useQuery({
@@ -40,31 +41,31 @@ export default function HRCentrePage() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      const formDataObj = Object.fromEntries(formData);
       const response = await fetch('/api/hr-activities', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formDataObj,
-          title: formDataObj.outcome, // Use outcome as title since it's required
-          status: 'pending'
-        }),
+        body: formData,
         credentials: 'include'
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create HR activity');
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to create HR activity');
       }
 
       toast({
         title: "Success",
         description: "HR activity created successfully",
       });
+
+      // Invalidate and refetch HR activities
+      queryClient.invalidateQueries({ queryKey: ['/api/hr-activities'] });
+
       setIsCreateOpen(false);
-    } catch (error) {
+      event.currentTarget.reset();
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to create HR activity",
+        description: error.message,
         variant: "destructive"
       });
     }
@@ -108,7 +109,7 @@ export default function HRCentrePage() {
                       Loading activities...
                     </td>
                   </tr>
-                ) : activities?.length === 0 ? (
+                ) : !activities || activities.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="text-center py-4">
                       No HR activities found
@@ -141,53 +142,71 @@ export default function HRCentrePage() {
           <DialogHeader>
             <DialogTitle>Create HR Activity</DialogTitle>
           </DialogHeader>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <Select name="type" required>
-              <SelectTrigger>
-                <SelectValue placeholder="Activity Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="probation_review">Probation Review</SelectItem>
-                <SelectItem value="disciplinary">Disciplinary</SelectItem>
-                <SelectItem value="supervision">Supervision</SelectItem>
-                <SelectItem value="meeting">Meeting</SelectItem>
-              </SelectContent>
-            </Select>
+          <form onSubmit={onSubmit} className="space-y-4" encType="multipart/form-data">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Activity Type</label>
+              <Select name="type" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="probation_review">Probation Review</SelectItem>
+                  <SelectItem value="disciplinary">Disciplinary</SelectItem>
+                  <SelectItem value="supervision">Supervision</SelectItem>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select name="employeeId" required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {users?.map((user: any) => (
-                  <SelectItem key={user.id} value={user.id.toString()}>
-                    {user.username}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Employee</label>
+              <Select name="employeeId" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users?.map((user: any) => (
+                    <SelectItem key={user.id} value={user.id.toString()}>
+                      {user.username}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Input 
-              name="outcome"
-              placeholder="Outcome"
-              required 
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Outcome</label>
+              <Input 
+                name="outcome"
+                placeholder="Activity outcome"
+                required 
+              />
+            </div>
 
-            <Textarea 
-              name="description"
-              placeholder="Description"
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              <Textarea 
+                name="description"
+                placeholder="Additional details"
+              />
+            </div>
 
-            <Input 
-              name="scheduledDate"
-              type="date"
-              required
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Scheduled Date</label>
+              <Input 
+                name="scheduledDate"
+                type="date"
+                required
+              />
+            </div>
 
-            <Input 
-              type="file" 
-              name="document" 
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Document (Optional)</label>
+              <Input 
+                type="file" 
+                name="document" 
+              />
+            </div>
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
