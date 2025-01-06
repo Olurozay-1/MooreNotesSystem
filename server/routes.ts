@@ -389,6 +389,34 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  app.post("/api/setup-manager", async (req, res) => {
+    try {
+      const [existingManager] = await db
+        .select()
+        .from(users)
+        .where(eq(users.role, "manager"))
+        .limit(1);
+
+      if (existingManager) {
+        return res.status(400).send("Manager already exists");
+      }
+
+      const [manager] = await db.insert(users)
+        .values({
+          username: "manager",
+          password: "password123", // This will be hashed by the auth system
+          role: "manager",
+          createdAt: new Date()
+        })
+        .returning();
+
+      res.json({ message: "Manager created successfully", id: manager.id });
+    } catch (error: any) {
+      console.error('Error creating manager:', error);
+      res.status(500).send(`Error creating manager: ${error.message}`);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
