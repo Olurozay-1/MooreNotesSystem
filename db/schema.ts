@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
@@ -42,7 +42,29 @@ export const youngPeople = pgTable("young_people", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const hrActivities = pgTable("hr_activities", {
+  id: serial("id").primaryKey(),
+  type: text("type", { 
+    enum: ["probation_review", "disciplinary", "supervision", "meeting"] 
+  }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  employeeId: integer("employee_id").references(() => users.id),
+  status: text("status", {
+    enum: ["pending", "completed", "cancelled"]
+  }).notNull().default("pending"),
+  scheduledDate: timestamp("scheduled_date"),
+  documentPath: text("document_path"),
+  createdBy: integer("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export const insertHrActivitySchema = createInsertSchema(hrActivities);
+export const selectHrActivitySchema = createSelectSchema(hrActivities);
+export type HrActivity = typeof hrActivities.$inferSelect;
+export type NewHrActivity = typeof hrActivities.$inferInsert;

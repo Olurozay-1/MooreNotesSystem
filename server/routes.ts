@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
-import { documents, tasks, youngPeople } from "@db/schema";
+import { documents, tasks, youngPeople, hrActivities } from "@db/schema";
 import { eq } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
@@ -105,6 +105,49 @@ export function registerRoutes(app: Express): Server {
       res.json(people);
     } catch (error) {
       res.status(500).send("Error fetching records");
+    }
+  });
+
+  // HR Activities API
+  app.post("/api/hr-activities", requireAuth, upload.single("document"), async (req, res) => {
+    try {
+      const file = req.file;
+      const data = {
+        ...req.body,
+        documentPath: file?.path,
+        createdBy: req.user.id,
+      };
+
+      const [activity] = await db.insert(hrActivities)
+        .values(data)
+        .returning();
+
+      res.json(activity);
+    } catch (error) {
+      res.status(500).send("Error creating HR activity");
+    }
+  });
+
+  app.get("/api/hr-activities", requireAuth, async (req, res) => {
+    try {
+      const activities = await db
+        .select({
+          id: hrActivities.id,
+          type: hrActivities.type,
+          title: hrActivities.title,
+          description: hrActivities.description,
+          employeeId: hrActivities.employeeId,
+          status: hrActivities.status,
+          scheduledDate: hrActivities.scheduledDate,
+          documentPath: hrActivities.documentPath,
+          createdAt: hrActivities.createdAt,
+        })
+        .from(hrActivities)
+        .orderBy(hrActivities.createdAt);
+
+      res.json(activities);
+    } catch (error) {
+      res.status(500).send("Error fetching HR activities");
     }
   });
 
