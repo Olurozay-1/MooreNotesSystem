@@ -64,7 +64,24 @@ export const selectUserSchema = createSelectSchema(users);
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
+export const timesheets = pgTable("timesheets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  shiftDate: timestamp("shift_date").notNull(),
+  timeIn: timestamp("time_in").notNull(),
+  timeOut: timestamp("time_out").notNull(),
+  isSleepIn: boolean("is_sleep_in").default(false),
+  notes: text("notes"),
+  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertHrActivitySchema = createInsertSchema(hrActivities);
 export const selectHrActivitySchema = createSelectSchema(hrActivities);
 export type HrActivity = typeof hrActivities.$inferSelect;
 export type NewHrActivity = typeof hrActivities.$inferInsert;
+
+export const insertTimesheetSchema = createInsertSchema(timesheets);
+export const selectTimesheetSchema = createSelectSchema(timesheets);
+export type Timesheet = typeof timesheets.$inferSelect;
+export type NewTimesheet = typeof timesheets.$inferInsert;

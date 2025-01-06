@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
 import { documents, tasks, youngPeople, hrActivities, users } from "@db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
 const upload = pkg({
@@ -119,6 +119,33 @@ export function registerRoutes(app: Express): Server {
       res.json(people);
     } catch (error) {
       res.status(500).send("Error fetching records");
+    }
+  });
+
+  // Timesheets API
+  app.post("/api/timesheets", requireAuth, async (req, res) => {
+    try {
+      const [timesheet] = await db.insert(timesheets)
+        .values({
+          ...req.body,
+          userId: req.user?.id,
+        })
+        .returning();
+      res.json(timesheet);
+    } catch (error) {
+      res.status(500).send("Error creating timesheet");
+    }
+  });
+
+  app.get("/api/timesheets", requireAuth, async (req, res) => {
+    try {
+      const userTimesheets = await db.select()
+        .from(timesheets)
+        .where(eq(timesheets.userId, req.user?.id))
+        .orderBy(desc(timesheets.createdAt));
+      res.json(userTimesheets);
+    } catch (error) {
+      res.status(500).send("Error fetching timesheets");
     }
   });
 
