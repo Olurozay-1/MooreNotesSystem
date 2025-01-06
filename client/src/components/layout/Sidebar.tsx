@@ -84,7 +84,7 @@ export function Sidebar({ className }: SidebarProps) {
           )}
         </div>
       </div>
-      <div className="absolute bottom-4 left-0 right-0 px-3">
+      <div className="fixed bottom-4 w-[calc(100%-24px)] mx-3">
         <Button
           variant="ghost"
           className="w-full justify-start text-white hover:text-[#d557ff]"
