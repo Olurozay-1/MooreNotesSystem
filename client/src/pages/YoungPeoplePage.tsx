@@ -115,7 +115,7 @@ export default function YoungPeoplePage() {
                       YP Folder
                     </Button>
                   </Link>
-                  <Link href={`/young-people/${person.id}/logs`}>
+                  <Link href="/young-people/shift-logs">
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                       <ClipboardList className="h-4 w-4" />
                       Shift Logs
