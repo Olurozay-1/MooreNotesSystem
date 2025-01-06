@@ -21,6 +21,8 @@ export function Sidebar({ className }: SidebarProps) {
     await logout();
   };
 
+  const isManager = user?.role?.toLowerCase() === "manager";
+
   return (
     <div className={cn("pb-12 min-h-screen bg-[#1a73e8]", className)}>
       <div className="space-y-4 py-4">
@@ -69,7 +71,7 @@ export function Sidebar({ className }: SidebarProps) {
               HR
             </Button>
           </Link>
-          {user && user.role?.toLowerCase() === 'manager' && (
+          {isManager && (
             <Link href="/business-vault">
               <Button
                 variant={location === "/business-vault" ? "secondary" : "ghost"}

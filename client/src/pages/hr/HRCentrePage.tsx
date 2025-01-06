@@ -24,6 +24,7 @@ export default function HRCentrePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
+  const isManager = user?.role?.toLowerCase() === "manager";
 
   const { data: activities, isLoading } = useQuery({
     queryKey: ['/api/hr-activities'],
@@ -31,7 +32,7 @@ export default function HRCentrePage() {
 
   const { data: users } = useQuery({
     queryKey: ['/api/users'],
-    enabled: user && user.role === 'manager'
+    enabled: isManager
   });
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -68,7 +69,7 @@ export default function HRCentrePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">HR Centre</h1>
-        {user && user.role?.toLowerCase() === 'manager' && (
+        {isManager && (
           <Button 
             onClick={() => setIsCreateOpen(true)}
             className="bg-[#1a73e8] hover:bg-[#1557b0]"
