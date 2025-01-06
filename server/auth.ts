@@ -8,6 +8,7 @@ import { promisify } from "util";
 import { users, type User } from "@db/schema";
 import { db } from "@db";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 const scryptAsync = promisify(scrypt);
 const crypto = {
@@ -30,9 +31,19 @@ const crypto = {
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User {
+      id: number;
+      username: string;
+      role: string;
+    }
   }
 }
+
+const userSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["carer", "manager"]).default("carer")
+});
 
 export function setupAuth(app: Express) {
   const MemoryStore = createMemoryStore(session);
@@ -99,8 +110,15 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const { username, password, role } = req.body;
-      
+      const result = userSchema.safeParse(req.body);
+      if (!result.success) {
+        return res
+          .status(400)
+          .send("Invalid input: " + result.error.issues.map(i => i.message).join(", "));
+      }
+
+      const { username, password, role } = result.data;
+
       const [existingUser] = await db
         .select()
         .from(users)
@@ -118,7 +136,8 @@ export function setupAuth(app: Express) {
         .values({
           username,
           password: hashedPassword,
-          role: role || "carer"
+          role,
+          createdAt: new Date()
         })
         .returning();
 
@@ -137,6 +156,13 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    const result = userSchema.safeParse(req.body);
+    if (!result.success) {
+      return res
+        .status(400)
+        .send("Invalid input: " + result.error.issues.map(i => i.message).join(", "));
+    }
+
     const cb = (err: any, user: Express.User, info: IVerifyOptions) => {
       if (err) {
         return next(err);

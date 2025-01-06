@@ -391,6 +391,7 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/setup-manager", async (req, res) => {
     try {
+      // Check if manager exists
       const [existingManager] = await db
         .select()
         .from(users)
@@ -398,19 +399,34 @@ export function registerRoutes(app: Express): Server {
         .limit(1);
 
       if (existingManager) {
-        return res.status(400).send("Manager already exists");
+        return res.status(400).json({
+          message: "Manager already exists",
+          credentials: {
+            username: "admin",
+            password: "manager123"
+          }
+        });
       }
+
+      const crypto = require('crypto');
+      const hashedPassword = await crypto.hash("manager123");
 
       const [manager] = await db.insert(users)
         .values({
-          username: "manager",
-          password: "password123", // This will be hashed by the auth system
+          username: "admin",
+          password: hashedPassword,
           role: "manager",
           createdAt: new Date()
         })
         .returning();
 
-      res.json({ message: "Manager created successfully", id: manager.id });
+      res.json({ 
+        message: "Manager created successfully", 
+        credentials: {
+          username: "admin",
+          password: "manager123"
+        }
+      });
     } catch (error: any) {
       console.error('Error creating manager:', error);
       res.status(500).send(`Error creating manager: ${error.message}`);
