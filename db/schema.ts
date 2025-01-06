@@ -63,9 +63,11 @@ export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   type: text("type", {
-    enum: ["young_people", "hr", "business"]
+    enum: ["onboarding", "compliance", "training", "other"]
   }).notNull(),
   path: text("path").notNull(),
+  reviewDate: timestamp("review_date"),
+  notes: text("notes"),
   uploadedBy: integer("uploaded_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
