@@ -69,7 +69,7 @@ export function Sidebar({ className }: SidebarProps) {
               HR
             </Button>
           </Link>
-          {user && user.role === 'manager' && (
+          {user && user.role?.toLowerCase() === 'manager' && (
             <Link href="/business-vault">
               <Button
                 variant={location === "/business-vault" ? "secondary" : "ghost"}

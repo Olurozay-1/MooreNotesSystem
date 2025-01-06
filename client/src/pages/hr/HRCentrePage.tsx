@@ -68,7 +68,7 @@ export default function HRCentrePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">HR Centre</h1>
-        {user && user.role === 'manager' && (
+        {user && user.role?.toLowerCase() === 'manager' && (
           <Button 
             onClick={() => setIsCreateOpen(true)}
             className="bg-[#1a73e8] hover:bg-[#1557b0]"
