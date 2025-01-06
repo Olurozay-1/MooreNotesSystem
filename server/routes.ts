@@ -122,12 +122,17 @@ export function registerRoutes(app: Express): Server {
         return res.status(401).send("User not authenticated");
       }
 
+      const data = {
+        ...req.body,
+        dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null,
+        dateAdmitted: req.body.dateAdmitted ? new Date(req.body.dateAdmitted) : null,
+        notes: req.body.notes ? JSON.parse(JSON.stringify({ content: req.body.notes })) : null,
+        createdBy: req.user.id,
+        createdAt: new Date()
+      };
+
       const [person] = await db.insert(youngPeople)
-        .values({
-          ...req.body,
-          createdBy: req.user.id,
-          createdAt: new Date()
-        })
+        .values(data)
         .returning();
 
       res.json(person);
