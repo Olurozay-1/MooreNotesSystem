@@ -107,7 +107,7 @@ export default function YoungPeoplePage() {
       </div>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Resident</DialogTitle>
           </DialogHeader>
@@ -134,16 +134,6 @@ export default function YoungPeoplePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Care Status</label>
-                <Input {...form.register('careStatus')} />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Social Worker</label>
-                <Input {...form.register('socialWorker')} />
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium">Local Authority</label>
                 <Input {...form.register('localAuthority')} />
               </div>
@@ -154,12 +144,12 @@ export default function YoungPeoplePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Dietary Requirements</label>
-                <Input {...form.register('dietaryRequirements')} />
+                <label className="text-sm font-medium">Conditions</label>
+                <Input {...form.register('conditions')} />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Additional Notes</label>
+                <label className="text-sm font-medium">Additional Notes (e.g. Dietary Requirements)</label>
                 <Textarea {...form.register('notes')} />
               </div>
 
