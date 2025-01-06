@@ -7,7 +7,8 @@ import {
   FileBox,
   Briefcase,
   LogOut,
-  Home
+  Home,
+  HelpCircle
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 
@@ -82,6 +83,15 @@ export function Sidebar({ className }: SidebarProps) {
               </Button>
             </Link>
           )}
+          <Link href="/help-support">
+            <Button
+              variant={location === "/help-support" ? "secondary" : "ghost"}
+              className="w-full justify-start text-white hover:text-[#d557ff]"
+            >
+              <HelpCircle className="mr-2 h-4 w-4" />
+              Help & Support
+            </Button>
+          </Link>
         </div>
       </div>
       <div className="fixed bottom-4 w-[calc(100%-24px)] mx-3">
