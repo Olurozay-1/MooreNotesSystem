@@ -22,10 +22,11 @@ export function Sidebar({ className }: SidebarProps) {
     await logout();
   };
 
+  // Case-insensitive check for manager role
   const isManager = user?.role?.toLowerCase() === "manager";
 
   return (
-    <div className={cn("pb-12 min-h-screen bg-[#1a73e8]", className)}>
+    <div className={cn("pb-12 min-h-screen bg-[#1a73e8] relative", className)}>
       <div className="space-y-4 py-4">
         <div className="px-4 py-2">
           <h2 className="mb-2 px-2 text-xl font-semibold tracking-tight text-white">
@@ -94,7 +95,7 @@ export function Sidebar({ className }: SidebarProps) {
           </Link>
         </div>
       </div>
-      <div className="fixed bottom-4 w-[calc(100%-24px)] mx-3">
+      <div className="absolute bottom-4 left-0 right-0 px-3">
         <Button
           variant="ghost"
           className="w-full justify-start text-white hover:text-[#d557ff]"
