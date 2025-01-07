@@ -89,13 +89,34 @@ export const youngPeople = pgTable("young_people", {
   name: text("name").notNull(),
   dateOfBirth: timestamp("date_of_birth"),
   gender: text("gender"),
+  phoneNumber: text("phone_number"),
+  roomNumber: text("room_number"),
   dateAdmitted: timestamp("date_admitted"),
   careStatus: text("care_status"),
-  socialWorker: text("social_worker"),
   localAuthority: text("local_authority"),
   allergies: text("allergies"),
+  conditions: text("conditions"),
+  medications: text("medications"),
   dietaryRequirements: text("dietary_requirements"),
   notes: jsonb("notes"),
+
+  // Next of Kin Details
+  nextOfKinName: text("next_of_kin_name"),
+  nextOfKinPhone: text("next_of_kin_phone"),
+  nextOfKinEmail: text("next_of_kin_email"),
+
+  // Social Worker Details
+  socialWorkerName: text("social_worker_name"),
+  socialWorkerPhone: text("social_worker_phone"),
+  socialWorkerEmail: text("social_worker_email"),
+
+  // School Details
+  schoolName: text("school_name"),
+  schoolContact: text("school_contact"),
+  schoolPhone: text("school_phone"),
+  schoolEmail: text("school_email"),
+  schoolDays: text("school_days"),
+
   createdAt: timestamp("created_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
 });
