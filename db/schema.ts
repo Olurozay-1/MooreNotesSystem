@@ -99,6 +99,8 @@ export const youngPeople = pgTable("young_people", {
   medications: text("medications"),
   dietaryRequirements: text("dietary_requirements"),
   notes: jsonb("notes"),
+  recentIncidents: text("recent_incidents"),
+  missingPersonReports: text("missing_person_reports"),
 
   // Next of Kin Details
   nextOfKinName: text("next_of_kin_name"),

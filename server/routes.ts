@@ -6,13 +6,17 @@ import {
   documents, tasks, youngPeople, hrActivities, users, timesheets, 
   ypFolderDocuments, shiftLogs 
 } from "@db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import pkg from 'multer';
 const { diskStorage } = pkg;
 const upload = pkg({
   dest: "uploads/",
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
+
+// Fix document type enum issue
+const documentTypes = ['onboarding', 'compliance', 'training', 'other'] as const;
+type DocumentType = typeof documentTypes[number];
 
 // Extend Express.User with our User type
 declare global {
@@ -71,9 +75,10 @@ export function registerRoutes(app: Express): Server {
 
   app.get("/api/documents/:type", requireAuth, async (req, res) => {
     try {
+      const type = req.params.type as DocumentType;
       const docs = await db.select()
         .from(documents)
-        .where(eq(documents.type, req.params.type));
+        .where(and(eq(documents.type, type)));
       res.json(docs);
     } catch (error) {
       res.status(500).send("Error fetching documents");
@@ -180,6 +185,25 @@ export function registerRoutes(app: Express): Server {
     } catch (error: any) {
       console.error('Error fetching young person:', error);
       res.status(500).send(`Error fetching record: ${error.message}`);
+    }
+  });
+
+  app.patch("/api/young-people/:id", requireAuth, async (req, res) => {
+    try {
+      const [person] = await db
+        .update(youngPeople)
+        .set(req.body)
+        .where(eq(youngPeople.id, parseInt(req.params.id)))
+        .returning();
+
+      if (!person) {
+        return res.status(404).send("Young person not found");
+      }
+
+      res.json(person);
+    } catch (error: any) {
+      console.error('Error updating young person:', error);
+      res.status(500).send(`Error updating record: ${error.message}`);
     }
   });
 
@@ -326,13 +350,12 @@ export function registerRoutes(app: Express): Server {
       }
 
       const { type, employeeId, description, scheduledDate } = req.body;
-      const outcome = req.body.outcome || req.body.title; // Support both outcome and title fields
+      const outcome = req.body.outcome || req.body.title;
 
       if (!type || !employeeId || !outcome || !scheduledDate) {
         return res.status(400).send("Missing required fields");
       }
 
-      // Validate employee exists
       const [employee] = await db
         .select()
         .from(users)
@@ -343,19 +366,17 @@ export function registerRoutes(app: Express): Server {
         return res.status(400).send("Invalid employee ID");
       }
 
-      const data = {
-        type,
-        title: outcome,
-        description,
-        employeeId: parseInt(employeeId),
-        scheduledDate: new Date(scheduledDate),
-        documentPath: req.file?.path,
-        createdBy: req.user.id,
-        status: "pending"
-      };
-
       const [activity] = await db.insert(hrActivities)
-        .values(data)
+        .values([{
+          type,
+          title: outcome,
+          description,
+          employeeId: parseInt(employeeId),
+          scheduledDate: new Date(scheduledDate),
+          documentPath: req.file?.path,
+          createdBy: req.user.id,
+          status: "pending"
+        }])
         .returning();
 
       res.json(activity);
