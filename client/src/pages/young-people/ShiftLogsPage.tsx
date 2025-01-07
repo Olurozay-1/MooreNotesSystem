@@ -44,6 +44,18 @@ type ShiftLogFormValues = z.infer<typeof shiftLogFormSchema>;
 export default function ShiftLogsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const params = new URLSearchParams(window.location.search);
+  const residentId = params.get('id');
+
+  const { data: resident } = useQuery({
+    queryKey: ['/api/young-people', residentId],
+    queryFn: async () => {
+      if (!residentId) return null;
+      const res = await fetch(`/api/young-people/${residentId}`);
+      return res.json();
+    },
+    enabled: !!residentId
+  });
   
   const form = useForm<ShiftLogFormValues>({
     resolver: zodResolver(shiftLogFormSchema),
@@ -95,6 +107,9 @@ export default function ShiftLogsPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-8">
+      <h1 className="text-2xl font-bold mb-6">
+        {resident ? `Shift Logs - ${resident.name}` : 'Shift Logs'}
+      </h1>
       <Card>
         <CardHeader>
           <CardTitle>Create Shift Log</CardTitle>
@@ -190,7 +205,7 @@ export default function ShiftLogsPage() {
                 name="concerns"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Concerns (Optional)</FormLabel>
+                    <FormLabel>Concerns</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Enter any concerns..."
