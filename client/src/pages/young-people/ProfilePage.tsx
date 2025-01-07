@@ -6,18 +6,19 @@ import {
   Phone, Mail, School, User2, Heart, Shield, 
   Calendar, Home, FileText, AlertTriangle 
 } from "lucide-react";
+import type { YoungPerson, ShiftLog } from "@db/schema";
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
 
   // Fetch young person's details
-  const { data: person, isLoading: isLoadingPerson } = useQuery({
+  const { data: person, isLoading: isLoadingPerson } = useQuery<YoungPerson>({
     queryKey: [`/api/young-people/${id}`],
     enabled: !!id
   });
 
   // Fetch recent shift logs
-  const { data: shiftLogs, isLoading: isLoadingLogs } = useQuery({
+  const { data: shiftLogs, isLoading: isLoadingLogs } = useQuery<ShiftLog[]>({
     queryKey: [`/api/shift-logs`],
   });
 
@@ -191,7 +192,7 @@ export default function ProfilePage() {
             <p>No recent shift logs</p>
           ) : (
             <div className="space-y-4">
-              {recentLogs.map((log: any) => (
+              {recentLogs.map((log: ShiftLog) => (
                 <Card key={log.id}>
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-start mb-2">

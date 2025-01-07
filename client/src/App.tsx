@@ -34,6 +34,7 @@ function App() {
         <Route path="/smock-walk" component={SmockWalkPage} />
         <Route path="/young-people" component={YoungPeoplePage} />
         <Route path="/young-people/:id/folder" component={lazy(() => import('./pages/young-people/YPFolderPage'))} />
+        <Route path="/young-people/:id/profile" component={lazy(() => import('./pages/young-people/ProfilePage'))} />
         <Route path="/young-people/shift-logs" component={lazy(() => import('./pages/young-people/ShiftLogsPage'))} />
         <Route path="/hr" component={HRPage} />
         <Route path="/hr/centre" component={lazy(() => import('./pages/hr/HRCentrePage'))} />
