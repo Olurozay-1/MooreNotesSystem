@@ -28,9 +28,11 @@ const crypto = {
   },
 };
 
+export interface AuthUser extends User {}
+
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends AuthUser {}
   }
 }
 
@@ -87,7 +89,11 @@ export function setupAuth(app: Express) {
   passport.deserializeUser(async (id: number, done) => {
     try {
       const [user] = await db
-        .select()
+        .select({
+          id: users.id,
+          username: users.username,
+          role: users.role,
+        })
         .from(users)
         .where(eq(users.id, id))
         .limit(1);
@@ -100,7 +106,7 @@ export function setupAuth(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       const { username, password, role } = req.body;
-      
+
       const [existingUser] = await db
         .select()
         .from(users)

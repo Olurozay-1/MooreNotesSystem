@@ -32,7 +32,7 @@ async function handleRequest(
     }
 
     const data = await response.json();
-    return { ok: true, user: data.user };
+    return { ok: true, user: data.user || data }; // Handle both formats
   } catch (e: any) {
     return { ok: false, message: e.toString() };
   }
@@ -65,7 +65,10 @@ export function useUser() {
 
   const loginMutation = useMutation<RequestResult, Error, any>({
     mutationFn: (userData) => handleRequest('/api/login', 'POST', userData),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data.ok && data.user) {
+        queryClient.setQueryData(['user'], data.user);
+      }
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
@@ -73,13 +76,17 @@ export function useUser() {
   const logoutMutation = useMutation<RequestResult, Error>({
     mutationFn: () => handleRequest('/api/logout', 'POST'),
     onSuccess: () => {
+      queryClient.setQueryData(['user'], null);
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
 
   const registerMutation = useMutation<RequestResult, Error, any>({
     mutationFn: (userData) => handleRequest('/api/register', 'POST', userData),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data.ok && data.user) {
+        queryClient.setQueryData(['user'], data.user);
+      }
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });

@@ -10,13 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Folder, ClipboardList, User2 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 
 export default function YoungPeoplePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
-  const isManager = user?.role?.toLowerCase() === "manager";
+  const isManager = user?.role === "manager"; 
 
   const { data: youngPeople, isLoading } = useQuery({
     queryKey: ['/api/young-people'],
