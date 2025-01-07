@@ -16,7 +16,7 @@ export default function YoungPeoplePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
-  const isManager = user?.role === "manager"; 
+  const isManager = user?.role?.toLowerCase() === "manager"; // Make role comparison case-insensitive
 
   const { data: youngPeople, isLoading } = useQuery({
     queryKey: ['/api/young-people'],
