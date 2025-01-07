@@ -105,7 +105,7 @@ export const ypFolderDocuments = pgTable("yp_folder_documents", {
   youngPersonId: integer("young_person_id").notNull().references(() => youngPeople.id),
   title: text("title").notNull(),
   category: text("category", {
-    enum: ["medical", "education", "legal", "care_plan", "risk_assessment", "other"]
+    enum: ["Health & Wellbeing", "Financial", "Agreements", "Education", "Care Plans", "Risk Assessments"]
   }).notNull(),
   path: text("path").notNull(),
   uploadedBy: integer("uploaded_by").references(() => users.id),
