@@ -36,16 +36,16 @@ export default function DocumentsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   const { data: documents = [], isLoading } = useQuery<Document[]>({
-    queryKey: ['/api/documents/business'],
+    queryKey: ['/api/documents'],
     enabled: user?.role?.toLowerCase() === 'manager'
   });
 
-  const onUploadDocument = async (event: React.ChangeEvent<HTMLFormElement>) => {
+  const onUploadDocument = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.currentTarget);
 
     try {
-      const response = await fetch('/api/documents/business', {
+      const response = await fetch('/api/documents', {
         method: 'POST',
         body: formData,
         credentials: 'include'
@@ -59,7 +59,7 @@ export default function DocumentsPage() {
         title: "Success",
         description: "Document uploaded successfully",
       });
-      event.target.reset();
+      (event.target as HTMLFormElement).reset();
     } catch (error) {
       toast({
         title: "Error",
@@ -70,8 +70,26 @@ export default function DocumentsPage() {
   };
 
   const filteredDocuments = selectedCategory
-    ? documents.filter(doc => doc.category === selectedCategory)
+    ? documents.filter(doc => doc.category.toLowerCase() === selectedCategory.toLowerCase())
     : documents;
+
+  if (user?.role?.toLowerCase() !== 'manager') {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <FileUp className="h-12 w-12 text-red-500 mx-auto" />
+              <h1 className="text-2xl font-bold">Access Restricted</h1>
+              <p className="text-gray-600">
+                This area is only accessible to managers.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

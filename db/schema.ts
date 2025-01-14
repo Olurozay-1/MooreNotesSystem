@@ -10,6 +10,52 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  type: text("type", {
+    enum: ["insurance", "finances", "legal", "home", "other"]
+  }).notNull(),
+  path: text("path").notNull(),
+  reviewDate: timestamp("review_date"),
+  notes: text("notes"),
+  uploadedBy: integer("uploaded_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const timesheets = pgTable("timesheets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  shiftDate: timestamp("shift_date").notNull(),
+  timeIn: timestamp("time_in").notNull(),
+  timeOut: timestamp("time_out").notNull(),
+  isSleepIn: boolean("is_sleep_in").default(false),
+  notes: text("notes"),
+  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const documentsRelations = relations(documents, ({ one }) => ({
+  uploader: one(users, {
+    fields: [documents.uploadedBy],
+    references: [users.id],
+  }),
+}));
+
+export const timesheetsRelations = relations(timesheets, ({ one }) => ({
+  user: one(users, {
+    fields: [timesheets.userId],
+    references: [users.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  documents: many(documents),
+  timesheets: many(timesheets),
+}));
+
+
 export const hrActivities = pgTable("hr_activities", {
   id: serial("id").primaryKey(),
   type: text("type", {
@@ -45,31 +91,6 @@ export const hrActivitiesRelations = relations(hrActivities, ({ one }) => ({
     relationName: "createdActivities",
   }),
 }));
-
-export const timesheets = pgTable("timesheets", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  shiftDate: timestamp("shift_date").notNull(),
-  timeIn: timestamp("time_in").notNull(),
-  timeOut: timestamp("time_out").notNull(),
-  isSleepIn: boolean("is_sleep_in").default(false),
-  notes: text("notes"),
-  status: text("status", { enum: ["pending", "approved", "rejected"] }).notNull().default("pending"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const documents = pgTable("documents", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  type: text("type", {
-    enum: ["onboarding", "compliance", "training", "other"]
-  }).notNull(),
-  path: text("path").notNull(),
-  reviewDate: timestamp("review_date"),
-  notes: text("notes"),
-  uploadedBy: integer("uploaded_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
 export const tasks = pgTable("tasks", {
   id: serial("id").primaryKey(),
@@ -187,6 +208,7 @@ export const shiftLogsRelations = relations(shiftLogs, ({ one }) => ({
   }),
 }));
 
+// Schemas for validation
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export type User = typeof users.$inferSelect;
@@ -216,3 +238,8 @@ export const insertYPFolderDocumentSchema = createInsertSchema(ypFolderDocuments
 export const selectYPFolderDocumentSchema = createSelectSchema(ypFolderDocuments);
 export type YPFolderDocument = typeof ypFolderDocuments.$inferSelect;
 export type NewYPFolderDocument = typeof ypFolderDocuments.$inferInsert;
+
+export const insertDocumentSchema = createInsertSchema(documents);
+export const selectDocumentSchema = createSelectSchema(documents);
+export type Document = typeof documents.$inferSelect;
+export type NewDocument = typeof documents.$inferInsert;

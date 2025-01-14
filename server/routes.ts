@@ -2,9 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { db } from "@db";
-import { 
-  documents, tasks, youngPeople, hrActivities, users, timesheets, 
-  ypFolderDocuments, shiftLogs 
+import {
+  documents, tasks, youngPeople, hrActivities, users, timesheets,
+  ypFolderDocuments, shiftLogs
 } from "@db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import pkg from 'multer';
@@ -14,8 +14,8 @@ const upload = pkg({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
-// Fix document type enum issue
-const documentTypes = ['onboarding', 'compliance', 'training', 'other'] as const;
+// Update document type enum
+const documentTypes = ['insurance', 'finances', 'legal', 'home', 'other'] as const;
 type DocumentType = typeof documentTypes[number];
 
 // Extend Express.User with our User type
@@ -49,36 +49,69 @@ export function registerRoutes(app: Express): Server {
   };
 
   // Documents API
-  app.post("/api/documents", requireAuth, upload.single("file"), async (req, res) => {
+  app.post("/api/documents", requireManager, upload.single("file"), async (req, res) => {
     try {
-      const { title, type } = req.body;
+      const { title, category, reviewDate } = req.body;
       const file = req.file;
 
       if (!file) {
         return res.status(400).send("No file uploaded");
       }
 
+      const documentType = category.toLowerCase() as DocumentType;
+      if (!documentTypes.includes(documentType)) {
+        return res.status(400).send("Invalid document category");
+      }
+
       const [doc] = await db.insert(documents)
         .values({
           title,
-          type,
+          type: documentType,
           path: file.path,
-          uploadedBy: req.user?.id
+          reviewDate: reviewDate ? new Date(reviewDate) : null,
+          uploadedBy: req.user?.id,
+          createdAt: new Date()
         })
         .returning();
 
       res.json(doc);
     } catch (error) {
+      console.error('Document upload error:', error);
       res.status(500).send("Error uploading document");
+    }
+  });
+
+  app.get("/api/documents", requireManager, async (req, res) => {
+    try {
+      const docs = await db.select({
+        id: documents.id,
+        title: documents.title,
+        category: documents.type,
+        path: documents.path,
+        reviewDate: documents.reviewDate,
+        createdAt: documents.createdAt,
+        uploadedBy: documents.uploadedBy
+      })
+        .from(documents)
+        .orderBy(desc(documents.createdAt));
+
+      res.json(docs);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      res.status(500).send("Error fetching documents");
     }
   });
 
   app.get("/api/documents/:type", requireAuth, async (req, res) => {
     try {
-      const type = req.params.type as DocumentType;
+      const type = req.params.type.toLowerCase() as DocumentType;
+      if (!documentTypes.includes(type)) {
+        return res.status(400).send("Invalid document type");
+      }
+
       const docs = await db.select()
         .from(documents)
-        .where(and(eq(documents.type, type)));
+        .where(eq(documents.type, type));
       res.json(docs);
     } catch (error) {
       res.status(500).send("Error fetching documents");
@@ -339,6 +372,30 @@ export function registerRoutes(app: Express): Server {
     } catch (error: any) {
       console.error('Timesheet fetch error:', error);
       res.status(500).send(`Error fetching timesheets: ${error.message}`);
+    }
+  });
+
+  app.patch("/api/timesheets/:id", requireManager, async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).send("Invalid status");
+      }
+
+      const [timesheet] = await db
+        .update(timesheets)
+        .set({ status })
+        .where(eq(timesheets.id, parseInt(req.params.id)))
+        .returning();
+
+      if (!timesheet) {
+        return res.status(404).send("Timesheet not found");
+      }
+
+      res.json(timesheet);
+    } catch (error) {
+      console.error('Error updating timesheet:', error);
+      res.status(500).send("Error updating timesheet");
     }
   });
 

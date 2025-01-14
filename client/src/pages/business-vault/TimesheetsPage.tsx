@@ -1,19 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { useToast } from "@/hooks/use-toast";
 
 interface Timesheet {
-  id: string;
-  employeeId: string;
-  employeeName: string;
-  startDate: string;
-  endDate: string;
+  id: number;
+  userId: number;
+  shiftDate: string;
+  timeIn: string;
+  timeOut: string;
+  isSleepIn: boolean;
+  notes: string | null;
   status: 'pending' | 'approved' | 'rejected';
-  hours: number;
-  submittedAt: string;
+  createdAt: string;
 }
 
 export default function TimesheetsPage() {
@@ -21,13 +22,13 @@ export default function TimesheetsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: timesheets = [], isLoading } = useQuery<Timesheet[]>({
-    queryKey: ['/api/timesheets/all'],
+  const { data: timesheets = [], isLoading, error } = useQuery<Timesheet[]>({
+    queryKey: ['/api/timesheets'],
     enabled: user?.role?.toLowerCase() === 'manager'
   });
 
   const updateTimesheet = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'approved' | 'rejected' }) => {
+    mutationFn: async ({ id, status }: { id: number; status: 'approved' | 'rejected' }) => {
       const response = await fetch(`/api/timesheets/${id}`, {
         method: 'PATCH',
         headers: {
@@ -44,7 +45,7 @@ export default function TimesheetsPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/timesheets/all'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/timesheets'] });
       toast({
         title: "Success",
         description: "Timesheet updated successfully",
@@ -77,11 +78,11 @@ export default function TimesheetsPage() {
     );
   }
 
-  const handleApprove = (id: string) => {
+  const handleApprove = (id: number) => {
     updateTimesheet.mutate({ id, status: 'approved' });
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = (id: number) => {
     updateTimesheet.mutate({ id, status: 'rejected' });
   };
 
@@ -101,7 +102,17 @@ export default function TimesheetsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div>Loading timesheets...</div>
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-500 py-4">
+              Failed to load timesheets. Please try again later.
+            </div>
+          ) : timesheets.length === 0 ? (
+            <div className="text-center text-muted-foreground py-4">
+              No timesheets found.
+            </div>
           ) : (
             <div className="space-y-4">
               {timesheets.map((timesheet) => (
@@ -109,12 +120,19 @@ export default function TimesheetsPage() {
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
                     <div>
-                      <h3 className="font-medium">{timesheet.employeeName}</h3>
+                      <h3 className="font-medium">Timesheet #{timesheet.id}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(timesheet.startDate).toLocaleDateString()} - {new Date(timesheet.endDate).toLocaleDateString()}
+                        Date: {new Date(timesheet.shiftDate).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Hours: {timesheet.hours} • Status: {timesheet.status}
+                        Time: {new Date(timesheet.timeIn).toLocaleTimeString()} - {new Date(timesheet.timeOut).toLocaleTimeString()}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Status: <span className={`font-medium ${
+                          timesheet.status === 'approved' ? 'text-green-600' :
+                          timesheet.status === 'rejected' ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`}>{timesheet.status}</span>
                       </p>
                     </div>
                   </div>
@@ -126,6 +144,7 @@ export default function TimesheetsPage() {
                           size="sm"
                           onClick={() => handleApprove(timesheet.id)}
                           className="text-green-600 hover:text-green-700"
+                          disabled={updateTimesheet.isPending}
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Approve
@@ -135,15 +154,13 @@ export default function TimesheetsPage() {
                           size="sm"
                           onClick={() => handleReject(timesheet.id)}
                           className="text-red-600 hover:text-red-700"
+                          disabled={updateTimesheet.isPending}
                         >
                           <XCircle className="h-4 w-4 mr-1" />
                           Reject
                         </Button>
                       </>
                     )}
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
                   </div>
                 </div>
               ))}

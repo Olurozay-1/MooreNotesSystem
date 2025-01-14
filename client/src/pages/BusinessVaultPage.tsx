@@ -35,7 +35,7 @@ export default function BusinessVaultPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link href="/business-vault/documents">
           <Card className="cursor-pointer hover:bg-accent transition-colors">
             <CardContent className="pt-6">
@@ -44,7 +44,7 @@ export default function BusinessVaultPage() {
                 <h2 className="text-xl font-semibold">Smock Walk Documents</h2>
               </div>
               <p className="text-muted-foreground">
-                Manage and access important documents related to Smock Walk, including insurance, finances, and legal documentation.
+                Upload and manage important business documents including insurance, finances, legal documentation, and home records with review tracking.
               </p>
             </CardContent>
           </Card>
@@ -58,7 +58,7 @@ export default function BusinessVaultPage() {
                 <h2 className="text-xl font-semibold">Employees</h2>
               </div>
               <p className="text-muted-foreground">
-                View and manage employee information, access individual documents and HR records.
+                Access employee profiles, manage documents, and view HR records for all staff members. Quickly navigate to individual employee folders.
               </p>
             </CardContent>
           </Card>
@@ -72,7 +72,7 @@ export default function BusinessVaultPage() {
                 <h2 className="text-xl font-semibold">Timesheets</h2>
               </div>
               <p className="text-muted-foreground">
-                Review and sign off employee timesheets, track submissions and manage approvals.
+                Review and approve employee timesheets, track working hours, and manage timesheet submissions efficiently.
               </p>
             </CardContent>
           </Card>

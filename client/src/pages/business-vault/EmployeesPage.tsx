@@ -6,18 +6,16 @@ import { useUser } from "@/hooks/use-user";
 import { Link } from "wouter";
 
 interface Employee {
-  id: string;
-  name: string;
-  email: string;
+  id: number;
+  username: string;
   role: string;
-  createdAt: string;
 }
 
 export default function EmployeesPage() {
   const { user } = useUser();
 
   const { data: employees = [], isLoading } = useQuery<Employee[]>({
-    queryKey: ['/api/employees'],
+    queryKey: ['/api/users'],
     enabled: user?.role?.toLowerCase() === 'manager'
   });
 
@@ -63,12 +61,9 @@ export default function EmployeesPage() {
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
                     <div>
-                      <h3 className="font-medium">{employee.name}</h3>
+                      <h3 className="font-medium">{employee.username}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {employee.email} • {employee.role}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Joined: {new Date(employee.createdAt).toLocaleDateString()}
+                        Role: {employee.role}
                       </p>
                     </div>
                   </div>
