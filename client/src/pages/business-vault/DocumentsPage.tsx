@@ -1,7 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -10,37 +18,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { FileUp, Building } from "lucide-react";
-import { useUser } from "@/hooks/use-user";
-import { useState } from "react";
-
-interface Document {
-  id: string;
-  title: string;
-  category: string;
-  reviewDate: string;
-  createdAt: string;
-}
-
-const CATEGORIES = [
-  "Insurance",
-  "Finances",
-  "Legal",
-  "Home",
-  "Other"
-] as const;
+import { FileUp, File } from "lucide-react";
 
 export default function DocumentsPage() {
-  const { user } = useUser();
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const { data: documents = [], isLoading } = useQuery<Document[]>({
+  const { data: documents, isLoading } = useQuery({
     queryKey: ['/api/documents'],
-    enabled: user?.role?.toLowerCase() === 'manager'
   });
 
-  const onUploadDocument = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
@@ -59,7 +47,8 @@ export default function DocumentsPage() {
         title: "Success",
         description: "Document uploaded successfully",
       });
-      (event.target as HTMLFormElement).reset();
+      setIsOpen(false);
+      event.currentTarget.reset();
     } catch (error) {
       toast({
         title: "Error",
@@ -69,118 +58,78 @@ export default function DocumentsPage() {
     }
   };
 
-  const filteredDocuments = selectedCategory
-    ? documents.filter(doc => doc.category.toLowerCase() === selectedCategory.toLowerCase())
-    : documents;
-
-  if (user?.role?.toLowerCase() !== 'manager') {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <FileUp className="h-12 w-12 text-red-500 mx-auto" />
-              <h1 className="text-2xl font-bold">Access Restricted</h1>
-              <p className="text-gray-600">
-                This area is only accessible to managers.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Building className="h-6 w-6" />
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Smock Walk Documents</h1>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button>Add New Document</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Upload New Document</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <Input
+                name="title"
+                placeholder="Document Name"
+                required
+              />
+              <Select name="category" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="insurance">Insurance</SelectItem>
+                  <SelectItem value="finances">Finances</SelectItem>
+                  <SelectItem value="legal">Legal</SelectItem>
+                  <SelectItem value="home">Home</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                type="date"
+                name="reviewDate"
+                placeholder="Review Date"
+                required
+              />
+              <Input
+                type="file"
+                name="file"
+                required
+              />
+              <Button type="submit" className="w-full">
+                Upload Document
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Document</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onUploadDocument} className="space-y-4">
-            <Input type="file" name="file" required />
-            <Input 
-              type="text" 
-              name="title" 
-              placeholder="Document title"
-              required
-            />
-            <Select name="category" required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((category) => (
-                  <SelectItem key={category} value={category.toLowerCase()}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input 
-              type="date" 
-              name="reviewDate" 
-              placeholder="Review date"
-              required
-            />
-            <Button type="submit">Upload Document</Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end space-x-2">
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
-            {CATEGORIES.map((category) => (
-              <SelectItem key={category} value={category.toLowerCase()}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Documents</CardTitle>
+          <CardTitle>Documents List</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div>Loading documents...</div>
           ) : (
             <div className="space-y-4">
-              {filteredDocuments.map((doc) => (
+              {documents?.map((doc: any) => (
                 <div key={doc.id} className="flex items-center justify-between p-4 border rounded">
                   <div className="flex items-center gap-2">
-                    <FileUp className="h-4 w-4" />
+                    <File className="h-4 w-4" />
                     <div>
                       <h3 className="font-medium">{doc.title}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Category: {doc.category}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Review Date: {new Date(doc.reviewDate).toLocaleDateString()}
+                        Category: {doc.category} | Review Date: {new Date(doc.reviewDate).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <div className="space-x-2">
-                    <Button variant="outline" size="sm">
-                      Download
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Update
-                    </Button>
-                  </div>
+                  <Button variant="ghost" onClick={() => window.open(`/api/documents/${doc.id}`)}>
+                    View
+                  </Button>
                 </div>
               ))}
             </div>
