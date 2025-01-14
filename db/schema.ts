@@ -53,6 +53,8 @@ export const timesheetsRelations = relations(timesheets, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   documents: many(documents),
   timesheets: many(timesheets),
+  hrActivitiesAsEmployee: many(hrActivities, { relationName: "employeeActivities" }),
+  hrActivitiesAsCreator: many(hrActivities, { relationName: "createdActivities" }),
 }));
 
 
@@ -73,11 +75,6 @@ export const hrActivities = pgTable("hr_activities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  hrActivitiesAsEmployee: many(hrActivities, { relationName: "employeeActivities" }),
-  hrActivitiesAsCreator: many(hrActivities, { relationName: "createdActivities" }),
-}));
 
 export const hrActivitiesRelations = relations(hrActivities, ({ one }) => ({
   employee: one(users, {
