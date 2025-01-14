@@ -42,6 +42,9 @@ function App() {
         <Route path="/hr/policies" component={lazy(() => import('./pages/hr/PoliciesPage'))} />
         <Route path="/hr/documents" component={lazy(() => import('./pages/hr/DocumentsPage'))} />
         <Route path="/business-vault" component={BusinessVaultPage} />
+        <Route path="/business-vault/documents" component={lazy(() => import('./pages/business-vault/DocumentsPage'))} />
+        <Route path="/business-vault/employees" component={lazy(() => import('./pages/business-vault/EmployeesPage'))} />
+        <Route path="/business-vault/timesheets" component={lazy(() => import('./pages/business-vault/TimesheetsPage'))} />
         <Route path="/help-support" component={lazy(() => import('./pages/HelpSupportPage'))} />
         <Route component={NotFound} />
       </Switch>
@@ -57,7 +60,7 @@ function NotFound() {
         <CardContent className="pt-6">
           <div className="flex mb-4 gap-2">
             <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
+            <h1 className="text-2xl font-bold">404 Page Not Found</h1>
           </div>
           <p className="mt-4 text-sm text-gray-600">
             The page you are looking for doesn't exist.
