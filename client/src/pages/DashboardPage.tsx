@@ -141,6 +141,38 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Message Board</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">Sarah (2 hours ago)</p>
+                <p>Remember team meeting tomorrow at 10am to discuss new procedures</p>
+              </div>
+              
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground mb-1">Mike (5 hours ago)</p>
+                <p>Updated risk assessments are now in the business vault</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Write a message to the team..."
+                className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm">
+                Send
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
