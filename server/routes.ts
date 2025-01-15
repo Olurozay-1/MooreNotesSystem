@@ -4,7 +4,7 @@ import { setupAuth } from "./auth";
 import { db } from "@db";
 import {
   documents, tasks, youngPeople, hrActivities, users, timesheets,
-  ypFolderDocuments, shiftLogs
+  ypFolderDocuments, shiftLogs, helpSupportContacts
 } from "@db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import pkg from 'multer';
@@ -464,6 +464,39 @@ export function registerRoutes(app: Express): Server {
       res.json(activities);
     } catch (error) {
       res.status(500).send("Error fetching HR activities");
+    }
+  });
+
+  // Help Support Contacts API
+  app.post("/api/help-support-contacts", requireManager, async (req, res) => {
+    try {
+      const { name, role, phone, email, website } = req.body;
+
+      const [contact] = await db.insert(helpSupportContacts)
+        .values({
+          name,
+          role,
+          phone,
+          email,
+          website,
+          createdBy: req.user?.id,
+        })
+        .returning();
+
+      res.json(contact);
+    } catch (error) {
+      console.error('Error creating help support contact:', error);
+      res.status(500).send("Error creating help support contact");
+    }
+  });
+
+  app.get("/api/help-support-contacts", requireAuth, async (req, res) => {
+    try {
+      const contacts = await db.select().from(helpSupportContacts);
+      res.json(contacts);
+    } catch (error) {
+      console.error('Error fetching help support contacts:', error);
+      res.status(500).send("Error fetching help support contacts");
     }
   });
 

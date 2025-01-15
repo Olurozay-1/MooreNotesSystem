@@ -55,6 +55,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   timesheets: many(timesheets),
   hrActivitiesAsEmployee: many(hrActivities, { relationName: "employeeActivities" }),
   hrActivitiesAsCreator: many(hrActivities, { relationName: "createdActivities" }),
+  helpSupportContacts: many(helpSupportContacts),
 }));
 
 
@@ -240,3 +241,30 @@ export const insertDocumentSchema = createInsertSchema(documents);
 export const selectDocumentSchema = createSelectSchema(documents);
 export type Document = typeof documents.$inferSelect;
 export type NewDocument = typeof documents.$inferInsert;
+
+// Add helpSupportContacts table after the existing tables
+export const helpSupportContacts = pgTable("help_support_contacts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email"),
+  website: text("website"),
+  createdAt: timestamp("created_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+// Add relations
+export const helpSupportContactsRelations = relations(helpSupportContacts, ({ one }) => ({
+  creator: one(users, {
+    fields: [helpSupportContacts.createdBy],
+    references: [users.id],
+  }),
+}));
+
+
+// Add schemas for validation at the end of the file
+export const insertHelpSupportContactSchema = createInsertSchema(helpSupportContacts);
+export const selectHelpSupportContactSchema = createSelectSchema(helpSupportContacts);
+export type HelpSupportContact = typeof helpSupportContacts.$inferSelect;
+export type NewHelpSupportContact = typeof helpSupportContacts.$inferInsert;
