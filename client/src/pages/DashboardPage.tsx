@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, UserMinus, Users } from "lucide-react";
 import { Line } from "react-chartjs-2";
@@ -61,8 +60,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -153,7 +150,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground mb-1">Sarah (2 hours ago)</p>
                 <p>Remember team meeting tomorrow at 10am to discuss new procedures</p>
               </div>
-              
+
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground mb-1">Mike (5 hours ago)</p>
                 <p>Updated risk assessments are now in the business vault</p>
@@ -161,8 +158,8 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex gap-2">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Write a message to the team..."
                 className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
               />

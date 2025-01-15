@@ -16,7 +16,7 @@ export default function YoungPeoplePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
-  const isManager = user?.role?.toLowerCase() === "manager"; // Make role comparison case-insensitive
+  const isManager = user?.role?.toLowerCase() === "manager";
 
   const { data: youngPeople, isLoading } = useQuery({
     queryKey: ['/api/young-people'],
@@ -35,7 +35,6 @@ export default function YoungPeoplePage() {
 
   const onSubmit = async (data: any) => {
     try {
-      // Format dates before submission
       const formattedData = {
         ...data,
         dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString() : null,
@@ -70,8 +69,7 @@ export default function YoungPeoplePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Young People</h1>
+      <div className="flex items-center justify-end">
         {isManager && (
           <Button 
             onClick={() => setIsCreateOpen(true)}

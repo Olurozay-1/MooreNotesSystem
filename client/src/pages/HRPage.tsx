@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Briefcase, Clock, Book, FileBox } from "lucide-react";
 import { Link } from "wouter";
@@ -6,8 +5,6 @@ import { Link } from "wouter";
 export default function HRPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Human Resources</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link href="/hr/centre">
           <Card className="cursor-pointer hover:bg-accent transition-colors">

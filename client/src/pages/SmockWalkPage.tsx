@@ -46,8 +46,6 @@ export default function SmockWalkPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Smock Walk</h1>
-
       <Tabs defaultValue="daily">
         <TabsList>
           <TabsTrigger value="daily">Daily Tasks</TabsTrigger>
@@ -158,7 +156,7 @@ export default function SmockWalkPage() {
             <CardContent>
               <Form {...form}>
                 <form className="space-y-4">
-                  <Textarea 
+                  <Textarea
                     placeholder="Enter handover notes for the next shift"
                     className="min-h-[200px]"
                   />
