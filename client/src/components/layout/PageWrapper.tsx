@@ -12,6 +12,7 @@ export function PageWrapper({ children }: PageWrapperProps) {
   const getPageTitle = () => {
     const path = location.split("/")[1];
     if (!path) return "Dashboard";
+    if (path === "hr") return "Human Resources";
     return path.split("-").map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(" ");

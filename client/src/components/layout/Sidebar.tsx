@@ -40,7 +40,7 @@ export function Sidebar({ className }: SidebarProps) {
           <Link href="/">
             <Button
               variant={location === "/" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
             >
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
@@ -49,7 +49,7 @@ export function Sidebar({ className }: SidebarProps) {
           <Link href="/smock-walk">
             <Button
               variant={location === "/smock-walk" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
             >
               <Home className="mr-2 h-4 w-4" />
               Smock Walk
@@ -58,7 +58,7 @@ export function Sidebar({ className }: SidebarProps) {
           <Link href="/young-people">
             <Button
               variant={location === "/young-people" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
             >
               <Users className="mr-2 h-4 w-4" />
               Young People
@@ -67,17 +67,17 @@ export function Sidebar({ className }: SidebarProps) {
           <Link href="/hr">
             <Button
               variant={location === "/hr" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
             >
               <Briefcase className="mr-2 h-4 w-4" />
-              HR
+              Human Resources
             </Button>
           </Link>
           {isManager && (
             <Link href="/business-vault">
               <Button
                 variant={location === "/business-vault" ? "secondary" : "ghost"}
-                className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+                className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
               >
                 <FileBox className="mr-2 h-4 w-4" />
                 Business Vault
@@ -87,7 +87,7 @@ export function Sidebar({ className }: SidebarProps) {
           <Link href="/help-support">
             <Button
               variant={location === "/help-support" ? "secondary" : "ghost"}
-              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+              className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
             >
               <HelpCircle className="mr-2 h-4 w-4" />
               Help & Support
@@ -98,7 +98,7 @@ export function Sidebar({ className }: SidebarProps) {
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <Button
           variant="ghost"
-          className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white"
+          className="w-full justify-start text-white hover:bg-[#d557ff] hover:text-white data-[state=open]:bg-[#d557ff] data-[state=open]:text-white [&[data-state=open]]:text-[#d557ff]"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
